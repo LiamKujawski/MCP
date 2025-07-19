@@ -319,4 +319,4 @@ Configure codecov upload.
 Fail PR if semgrep finds HIGH severity issues.
 ────────────────────────────────────────
 
-This prompt can be fed directly to O3 or an equivalent agent to bootstrap the full project with well-researched, justified choices at every layer. 
+This prompt can be fed directly to any capable agent to bootstrap the full project with well-researched, justified choices at every layer. 

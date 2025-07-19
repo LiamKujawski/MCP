@@ -1,4 +1,4 @@
-# O3 Codebase Generation Setup Guide
+# Codebase Generation Setup Guide
 
 ## Prerequisites
 
@@ -38,9 +38,9 @@ recommended_requirements:
 ### 1. Environment Setup
 
 ```bash
-# Clone the O3 codebase generator
-git clone https://github.com/your-org/o3-codebase-generator.git
-cd o3-codebase-generator
+# Clone the codebase generator
+git clone https://github.com/your-org/codebase-generator.git
+cd codebase-generator
 
 # Create Python virtual environment
 python -m venv venv
@@ -207,20 +207,20 @@ spec:
 ### 5. CLI Setup
 
 ```bash
-# Install O3 CLI globally
-npm install -g @o3/cli
+# Install Codegen CLI globally
+npm install -g @codegen/cli
 
 # Initialize a new project
-o3 init my-ai-app
+codegen init my-ai-app
 
 # Configure project settings
 cd my-ai-app
-o3 config set framework astro
-o3 config set ai-provider bedrock
-o3 config set deployment kubernetes
+codegen config set framework astro
+codegen config set ai-provider bedrock
+codegen config set deployment kubernetes
 
 # Generate initial codebase
-o3 generate --type fullstack --features auth,database,api
+codegen generate --type fullstack --features auth,database,api
 ```
 
 ### 6. Development Workflow
@@ -242,7 +242,7 @@ npm run deploy:staging
 
 #### Using the Generator API
 ```python
-from o3_generator import CodebaseGenerator
+from codegen import CodebaseGenerator
 
 # Initialize generator
 generator = CodebaseGenerator(
@@ -281,9 +281,9 @@ print(f"Total lines of code: {result.total_loc}")
 #### VS Code Extension
 ```json
 {
-  "o3.generator": {
+  "codegen.generator": {
     "endpoint": "http://localhost:8080",
-    "apiKey": "${env:O3_API_KEY}",
+    "apiKey": "${env:CODEGEN_API_KEY}",
     "autoComplete": true,
     "contextWindow": 16000
   }
@@ -307,14 +307,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup O3
-      uses: o3-ai/setup-action@v1
+    - name: Setup Codegen
+      uses: codegen-ai/setup-action@v1
       with:
-        api-key: ${{ secrets.O3_API_KEY }}
+        api-key: ${{ secrets.CODEGEN_API_KEY }}
     
     - name: Generate Codebase
       run: |
-        o3 generate \
+        codegen generate \
           --requirements '${{ github.event.inputs.requirements }}' \
           --output ./generated
     
@@ -322,7 +322,7 @@ jobs:
       uses: peter-evans/create-pull-request@v5
       with:
         title: 'Generated Code: ${{ github.run_id }}'
-        body: 'Auto-generated code from O3'
+        body: 'Auto-generated code'
 ```
 
 ### 8. Production Deployment
@@ -330,7 +330,7 @@ jobs:
 #### AWS Bedrock Integration
 ```python
 import boto3
-from o3_generator.providers import BedrockProvider
+from codegen.providers import BedrockProvider
 
 # Configure Bedrock client
 bedrock = boto3.client(
@@ -382,10 +382,10 @@ monitoring:
 1. **Token Limit Exceeded**
    ```bash
    # Increase chunk size
-   o3 config set chunk-size 8000
+   codegen config set chunk-size 8000
    
    # Enable aggressive compression
-   o3 config set compression true
+   codegen config set compression true
    ```
 
 2. **Rate Limiting**
@@ -406,14 +406,14 @@ monitoring:
    export NODE_OPTIONS="--max-old-space-size=8192"
    
    # Enable streaming mode
-   o3 generate --stream --batch-size 10
+   codegen generate --stream --batch-size 10
    ```
 
 ### 10. Best Practices
 
 #### Project Structure
 ```
-o3-project/
+codegen-project/
 ├── .env
 ├── .env.example
 ├── config/
@@ -446,4 +446,4 @@ o3-project/
 3. **Join Community**: Discord server for support and updates
 4. **Contribute**: Submit templates and improvements via GitHub
 
-For detailed API documentation, visit: https://docs.o3-generator.ai
+For detailed API documentation, visit: https://docs.codegen.ai

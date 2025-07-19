@@ -1,0 +1,1 @@
+# Prompt Structure Placeholder

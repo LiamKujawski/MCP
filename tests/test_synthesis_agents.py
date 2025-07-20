@@ -55,7 +55,7 @@ class TestKnowledgeGraph:
         graph = KnowledgeGraph()
         
         # Add insights from multiple perspectives on same type
-        for i, perspective in enumerate([ResearchPerspective.O3, ResearchPerspective.SONNET]):
+        for i, perspective in enumerate([ResearchPerspective.O3, ResearchPerspective.CLAUDE_4_SONNET]):
             insight = ResearchInsight(
                 id=f"insight_{i}",
                 source_file=f"file_{i}.md",
@@ -88,7 +88,7 @@ class TestKnowledgeGraph:
         insight2 = ResearchInsight(
             id="sonnet_unique",
             source_file="sonnet.md",
-            perspective=ResearchPerspective.SONNET,
+            perspective=ResearchPerspective.CLAUDE_4_SONNET,
             type=InsightType.PERFORMANCE,
             content="Sonnet unique performance insight"
         )

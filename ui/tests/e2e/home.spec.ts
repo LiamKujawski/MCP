@@ -4,6 +4,9 @@ test.describe('Home Page', () => {
   test('should load and display welcome message', async ({ page }) => {
     await page.goto('/');
     
+    // Wait for the page to be fully loaded
+    await page.waitForLoadState('networkidle');
+    
     // Check if the page title contains MCP
     await expect(page).toHaveTitle('MCP Agent Platform');
     
@@ -19,6 +22,7 @@ test.describe('Home Page', () => {
 
   test('should have working navigation links', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
     // Check API link
     const apiLink = page.getByRole('link', { name: /API/ }).first();

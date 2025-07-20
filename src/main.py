@@ -41,6 +41,13 @@ app = FastAPI(
 )
 
 
+# Ensure app state is initialized
+if not hasattr(app.state, 'active_tasks'):
+    app.state.active_tasks = {}
+if not hasattr(app.state, 'orchestrator'):
+    app.state.orchestrator = ΣBuilderOrchestrator()
+
+
 class WorkflowStatus(BaseModel):
     """Status of workflow execution"""
     workflow_id: str

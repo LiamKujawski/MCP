@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 class ResearchPerspective(Enum):
     """Model perspectives from research synthesis"""
     O3 = "o3"
-    SONNET = "claude-4-sonnet"
-    OPUS = "claude-4-opus"
+    CLAUDE_4_SONNET = "claude-4-sonnet"
+    CLAUDE_4_OPUS = "claude-4-opus"
     CURSOR = "cursor-agent"
 
 

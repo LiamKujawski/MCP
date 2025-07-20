@@ -18,8 +18,9 @@ from synthesized_agent import (
     ResearchDigestionAgent,
     SynthesisReportAgent,
     ImplementationPlanAgent,
-    process_sigma_builder_request
+    process_sigma_builder_request,
 )
+
 
 # Lifespan context manager
 @asynccontextmanager
@@ -37,19 +38,20 @@ app = FastAPI(
     title="Σ-Builder Multi-Model Research Synthesis",
     description="O3 Prompt interpreted through Sonnet's synthesis approach",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
 # Ensure app state is initialized
-if not hasattr(app.state, 'active_tasks'):
+if not hasattr(app.state, "active_tasks"):
     app.state.active_tasks = {}
-if not hasattr(app.state, 'orchestrator'):
+if not hasattr(app.state, "orchestrator"):
     app.state.orchestrator = ΣBuilderOrchestrator()
 
 
 class WorkflowStatus(BaseModel):
     """Status of workflow execution"""
+
     workflow_id: str
     status: str
     phases_completed: List[str]
@@ -61,6 +63,7 @@ class WorkflowStatus(BaseModel):
 
 class PhaseRequest(BaseModel):
     """Request for executing a specific phase"""
+
     phase: str = Field(..., description="Phase to execute")
     context: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
@@ -80,8 +83,8 @@ async def root():
             "/research/digest": "Digest research files",
             "/synthesis/report": "Generate synthesis report",
             "/implementation/plan": "Create implementation plan",
-            "/health": "Health check"
-        }
+            "/health": "Health check",
+        },
     }
 
 
@@ -89,39 +92,37 @@ async def root():
 async def start_workflow(background_tasks: BackgroundTasks):
     """Start the complete Σ-Builder workflow"""
     workflow_id = f"workflow_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    
+
     status = WorkflowStatus(
         workflow_id=workflow_id,
         status="running",
         phases_completed=[],
         current_phase=ΣBuilderPhase.RESEARCH_DIGESTION.value,
-        start_time=datetime.now()
+        start_time=datetime.now(),
     )
-    
+
     app.state.active_tasks[workflow_id] = status
-    
+
     # Run workflow in background
     background_tasks.add_task(
-        run_workflow_background,
-        workflow_id,
-        app.state.orchestrator
+        run_workflow_background, workflow_id, app.state.orchestrator
     )
-    
+
     return status
 
 
 async def run_workflow_background(workflow_id: str, orchestrator: ΣBuilderOrchestrator):
     """Run workflow in background"""
     status = app.state.active_tasks[workflow_id]
-    
+
     try:
         result = await orchestrator.execute_workflow()
-        
+
         status.status = "completed"
         status.phases_completed = result.get("phases_executed", [])
         status.current_phase = None
         status.end_time = datetime.now()
-        
+
     except Exception as e:
         status.status = "failed"
         status.error = str(e)
@@ -133,7 +134,7 @@ async def get_workflow_status(workflow_id: str):
     """Get status of a workflow"""
     if workflow_id not in app.state.active_tasks:
         raise HTTPException(status_code=404, detail="Workflow not found")
-    
+
     return app.state.active_tasks[workflow_id]
 
 
@@ -143,9 +144,9 @@ async def execute_phase(request: PhaseRequest):
     task_request = TaskRequest(
         description=f"Execute {request.phase} phase",
         phase=request.phase,
-        config=request.context
+        config=request.context,
     )
-    
+
     response = await process_sigma_builder_request(task_request)
     return response
 
@@ -155,13 +156,13 @@ async def digest_research():
     """Execute research digestion phase"""
     agent = ResearchDigestionAgent()
     result = await agent.execute({})
-    
+
     return {
         "status": "completed",
         "insights_count": result.get("insights_count", 0),
         "files_processed": result.get("files_processed", 0),
         "consensus_patterns": len(result.get("consensus_patterns", [])),
-        "divergences": len(result.get("divergences", []))
+        "divergences": len(result.get("divergences", [])),
     }
 
 
@@ -169,17 +170,17 @@ async def digest_research():
 async def generate_synthesis_report(knowledge_graph: Optional[Dict[str, Any]] = None):
     """Generate synthesis report"""
     agent = SynthesisReportAgent()
-    
+
     context = {}
     if knowledge_graph:
         context["knowledge_graph"] = knowledge_graph
-    
+
     try:
         result = await agent.execute(context)
         return {
             "status": "completed",
             "report_path": result.get("report_path"),
-            "sections": result.get("sections_generated", [])
+            "sections": result.get("sections_generated", []),
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -190,11 +191,11 @@ async def create_implementation_plan():
     """Create implementation plan"""
     agent = ImplementationPlanAgent()
     result = await agent.execute({})
-    
+
     return {
         "status": "completed",
         "plan_path": result.get("plan_path"),
-        "plan": result.get("plan", {})
+        "plan": result.get("plan", {}),
     }
 
 
@@ -206,18 +207,18 @@ async def list_agents():
             {
                 "name": "ResearchDigestionAgent",
                 "phase": ΣBuilderPhase.RESEARCH_DIGESTION.value,
-                "description": "Digests research files and builds knowledge graph"
+                "description": "Digests research files and builds knowledge graph",
             },
             {
                 "name": "SynthesisReportAgent",
                 "phase": ΣBuilderPhase.SYNTHESIS_REPORT.value,
-                "description": "Generates synthesis report from knowledge graph"
+                "description": "Generates synthesis report from knowledge graph",
             },
             {
                 "name": "ImplementationPlanAgent",
                 "phase": ΣBuilderPhase.IMPLEMENTATION_PLAN.value,
-                "description": "Creates implementation plan based on synthesis"
-            }
+                "description": "Creates implementation plan based on synthesis",
+            },
         ]
     }
 
@@ -229,7 +230,7 @@ async def health_check():
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "active_workflows": len(app.state.active_tasks),
-        "implementation": "o3-prompt-sonnet-model"
+        "implementation": "o3-prompt-sonnet-model",
     }
 
 
@@ -237,32 +238,22 @@ async def health_check():
 @app.exception_handler(ValueError)
 async def value_error_handler(request, exc):
     """Handle value errors"""
-    return JSONResponse(
-        status_code=400,
-        content={"detail": str(exc)}
-    )
+    return JSONResponse(status_code=400, content={"detail": str(exc)})
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     """Handle general exceptions"""
     return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error", "error": str(exc)}
+        status_code=500, content={"detail": "Internal server error", "error": str(exc)}
     )
 
 
 if __name__ == "__main__":
     import uvicorn
     import os
-    
+
     # Make bind address configurable, default to loopback for security
     host = os.getenv("BIND_HOST", "127.0.0.1")  # nosec B104
-    
-    uvicorn.run(
-        "main:app",
-        host=host,
-        port=8000,
-        reload=True,
-        log_level="info"
-    ) 
+
+    uvicorn.run("main:app", host=host, port=8000, reload=True, log_level="info")

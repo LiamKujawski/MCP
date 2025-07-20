@@ -1,4 +1,5 @@
 """Simple integration tests"""
+
 import os
 
 
@@ -10,4 +11,4 @@ def test_environment():
 
 def test_smoke_integration():
     """Basic smoke test for integration"""
-    assert True 
+    assert True

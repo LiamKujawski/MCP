@@ -270,6 +270,10 @@ class SynthesisReportAgent(BaseΣAgent):
         """Generate synthesis report from knowledge graph"""
         self.log_progress("Generating synthesis report")
         
+        # ensure self.context exists for legacy tests
+        if not hasattr(self, "context"):
+            self.context = context or {}
+        
         knowledge_graph = context.get("knowledge_graph")
         if not knowledge_graph:
             raise ValueError("Knowledge graph not found in context")
@@ -277,8 +281,8 @@ class SynthesisReportAgent(BaseΣAgent):
         # Generate report sections
         # Handle dict representation from ResearchDigestionAgent
         if isinstance(knowledge_graph, dict):
-            consensus_patterns = self.context.get("consensus_patterns", [])
-            divergences = self.context.get("divergences", [])
+            consensus_patterns = context.get("consensus_patterns", [])
+            divergences = context.get("divergences", [])
         else:
             consensus_patterns = knowledge_graph.consensus_patterns
             divergences = knowledge_graph.divergences
@@ -310,8 +314,8 @@ class SynthesisReportAgent(BaseΣAgent):
         # Handle dict representation from ResearchDigestionAgent
         if isinstance(knowledge_graph, dict):
             insights_count = len(knowledge_graph.get("insights", {}))
-            consensus_count = len(self.context.get("consensus_patterns", []))
-            divergences_count = len(self.context.get("divergences", []))
+            consensus_count = len(knowledge_graph.get("consensus_patterns", []))
+            divergences_count = len(knowledge_graph.get("divergences", []))
         else:
             insights_count = len(knowledge_graph.insights)
             consensus_count = len(knowledge_graph.consensus_patterns)

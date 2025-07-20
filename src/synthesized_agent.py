@@ -275,11 +275,19 @@ class SynthesisReportAgent(BaseΣAgent):
             raise ValueError("Knowledge graph not found in context")
         
         # Generate report sections
+        # Handle dict representation from ResearchDigestionAgent
+        if isinstance(knowledge_graph, dict):
+            consensus_patterns = self.context.get("consensus_patterns", [])
+            divergences = self.context.get("divergences", [])
+        else:
+            consensus_patterns = knowledge_graph.consensus_patterns
+            divergences = knowledge_graph.divergences
+        
         report_sections = {
             "executive_summary": self._generate_executive_summary(knowledge_graph),
             "model_viewpoints_matrix": self._generate_viewpoints_matrix(knowledge_graph),
-            "consensus_patterns": knowledge_graph.consensus_patterns,
-            "valuable_divergences": knowledge_graph.divergences,
+            "consensus_patterns": consensus_patterns,
+            "valuable_divergences": divergences,
             "actionable_requirements": self._generate_requirements(knowledge_graph)
         }
         
@@ -299,21 +307,39 @@ class SynthesisReportAgent(BaseΣAgent):
     
     def _generate_executive_summary(self, knowledge_graph: KnowledgeGraph) -> str:
         """Generate executive summary"""
+        # Handle dict representation from ResearchDigestionAgent
+        if isinstance(knowledge_graph, dict):
+            insights_count = len(knowledge_graph.get("insights", {}))
+            consensus_count = len(self.context.get("consensus_patterns", []))
+            divergences_count = len(self.context.get("divergences", []))
+        else:
+            insights_count = len(knowledge_graph.insights)
+            consensus_count = len(knowledge_graph.consensus_patterns)
+            divergences_count = len(knowledge_graph.divergences)
+        
         return f"""
 # Executive Summary
 
-Synthesized {len(knowledge_graph.insights)} insights from multi-model research:
-- Identified {len(knowledge_graph.consensus_patterns)} consensus patterns
-- Found {len(knowledge_graph.divergences)} valuable divergences
+Synthesized {insights_count} insights from multi-model research:
+- Identified {consensus_count} consensus patterns
+- Found {divergences_count} valuable divergences
 - Key focus areas: Architecture, Safety, Performance, Scalability
 """
     
     def _generate_viewpoints_matrix(self, knowledge_graph: KnowledgeGraph) -> Dict[str, List[str]]:
         """Generate model viewpoints matrix"""
         matrix = {}
-        for perspective in ResearchPerspective:
-            insights = [i for i in knowledge_graph.insights.values() if i.perspective == perspective]
-            matrix[perspective.value] = [i.content for i in insights[:3]]  # Top 3 insights
+        
+        # Handle dict representation from ResearchDigestionAgent
+        if isinstance(knowledge_graph, dict):
+            insights_data = knowledge_graph.get("insights", {})
+            for perspective in ResearchPerspective:
+                insights = [i for i in insights_data.values() if i.get("perspective") == perspective.value]
+                matrix[perspective.value] = [i.get("content", "") for i in insights[:3]]  # Top 3 insights
+        else:
+            for perspective in ResearchPerspective:
+                insights = [i for i in knowledge_graph.insights.values() if i.perspective == perspective]
+                matrix[perspective.value] = [i.content for i in insights[:3]]  # Top 3 insights
         return matrix
     
     def _generate_requirements(self, knowledge_graph: KnowledgeGraph) -> List[str]:

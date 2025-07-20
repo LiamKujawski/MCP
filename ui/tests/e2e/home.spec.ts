@@ -5,7 +5,7 @@ test.describe('Home Page', () => {
     await page.goto('/');
     
     // Check if the page title contains MCP
-    await expect(page).toHaveTitle(/Next/); // Default Next.js title
+    await expect(page).toHaveTitle('MCP Agent Platform');
     
     // Check if welcome message is visible
     await expect(page.locator('h1')).toContainText('Welcome to MCP');

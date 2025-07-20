@@ -1,10 +1,10 @@
-# O3 Codebase Generation Setup
+# Codebase Generation Setup
 
 ## Installation & Prerequisites
 
 ### System Requirements
 - Python 3.9+ or Node.js 18+
-- OpenAI API access with O3 model
+- OpenAI API access with your chosen LLM model
 - Git version control
 - Docker (optional but recommended)
 - VS Code or preferred IDE
@@ -12,7 +12,7 @@
 ### Core Dependencies
 ```json
 {
-  "name": "o3-codebase-generator",
+  "name": "codebase-generator",
   "version": "1.0.0",
   "dependencies": {
     "openai": "^4.0.0",
@@ -32,7 +32,7 @@
 
 ## Project Structure
 ```
-o3-codebase-generator/
+codebase-generator/
 ├── src/
 │   ├── core/
 │   │   ├── generator.ts
@@ -77,7 +77,7 @@ o3-codebase-generator/
 import { OpenAI } from 'openai';
 import { ProjectPlan, GenerationConfig, Codebase } from '../types';
 
-export class O3CodebaseGenerator {
+export class CodebaseGenerator {
     private openai: OpenAI;
     private config: GenerationConfig;
     
@@ -101,7 +101,7 @@ export class O3CodebaseGenerator {
     
     private async createProjectPlan(requirements: string): Promise<ProjectPlan> {
         const response = await this.openai.chat.completions.create({
-            model: 'o3-mini',
+            model: 'your-model-id',
             messages: [{
                 role: 'system',
                 content: `You are an expert software architect. Create a detailed project plan for the following requirements. Include:
@@ -183,11 +183,11 @@ export class CodeValidator {
     }
     
     private async generateSuggestions(results: any[]): Promise<string[]> {
-        // Use O3 to generate improvement suggestions
+        // Use the LLM to generate improvement suggestions
         const issues = results.flatMap(r => r.messages);
         
         const response = await this.openai.chat.completions.create({
-            model: 'o3-mini',
+            model: 'your-model-id',
             messages: [{
                 role: 'system',
                 content: 'Analyze these code issues and provide improvement suggestions:'
@@ -207,32 +207,32 @@ export class CodeValidator {
 ### Command Structure
 ```bash
 # Initialize new project
-o3-gen init --template=fullstack --name=my-app
+code-gen init --template=fullstack --name=my-app
 
 # Generate specific component
-o3-gen component --type=react --name=UserProfile
+code-gen component --type=react --name=UserProfile
 
 # Add feature to existing project
-o3-gen feature --type=authentication --provider=auth0
+code-gen feature --type=authentication --provider=auth0
 
 # Validate existing codebase
-o3-gen validate --fix
+code-gen validate --fix
 
 # Generate tests
-o3-gen test --coverage=90
+code-gen test --coverage=90
 ```
 
 ### CLI Implementation
 ```typescript
 // src/cli/index.ts
 import { Command } from 'commander';
-import { O3CodebaseGenerator } from '../core/generator';
+import { CodebaseGenerator } from '../core/generator';
 
 const program = new Command();
 
 program
-    .name('o3-gen')
-    .description('O3-powered codebase generator')
+    .name('code-gen')
+    .description('AI-powered codebase generator')
     .version('1.0.0');
 
 program
@@ -241,7 +241,7 @@ program
     .option('-t, --template <type>', 'Project template', 'fullstack')
     .option('-n, --name <name>', 'Project name', 'my-app')
     .action(async (options) => {
-        const generator = new O3CodebaseGenerator(process.env.OPENAI_API_KEY);
+        const generator = new CodebaseGenerator(process.env.OPENAI_API_KEY);
         
         const requirements = `
         Create a ${options.template} application named ${options.name}.
@@ -264,7 +264,7 @@ program.parse();
 ```yaml
 # config/default.yaml
 generation:
-  model: "o3-mini"
+  model: "your-model-id"
   temperature: 0.1
   max_tokens: 4096
   
@@ -291,7 +291,7 @@ templates:
 
 ### Generate React App
 ```bash
-o3-gen init --template=react --name=my-dashboard
+code-gen init --template=react --name=my-dashboard
 cd my-dashboard
 npm install
 npm start
@@ -299,7 +299,7 @@ npm start
 
 ### Generate API Service
 ```bash
-o3-gen init --template=api --name=user-service
+code-gen init --template=api --name=user-service
 cd user-service
 npm install
 npm run dev
@@ -307,10 +307,10 @@ npm run dev
 
 ### Add Authentication
 ```bash
-o3-gen feature --type=auth --provider=clerk
+code-gen feature --type=auth --provider=clerk
 ```
 
 ### Generate Tests
 ```bash
-o3-gen test --component=UserProfile --coverage=95
+code-gen test --component=UserProfile --coverage=95
 ```

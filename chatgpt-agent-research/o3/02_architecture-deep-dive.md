@@ -1,4 +1,4 @@
-# ChatGPT Agent Architecture Deep Dive - O3 Analysis
+# ChatGPT Agent Architecture Deep Dive - Model-Agnostic Analysis
 
 ## System Architecture Overview
 

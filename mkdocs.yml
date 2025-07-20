@@ -1,0 +1,117 @@
+site_name: MCP - Multi-Agent Codebase Platform
+site_description: A self-perpetuating Research → Synthesis → Experiment → Deploy → Optimize pipeline
+site_author: MCP Team
+site_url: https://mcp-docs.example.com
+
+repo_name: mcp
+repo_url: https://github.com/mcp/mcp
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - toc.follow
+
+plugins:
+  - search
+  - git-revision-date
+  - mermaid2:
+      arguments:
+        theme: 'base'
+  - awesome-pages
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - toc:
+      permalink: true
+  - def_list
+  - footnotes
+  - tables
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Architecture Overview: getting-started/architecture.md
+  - Research:
+    - Overview: research/index.md
+    - ChatGPT Agent: research/chatgpt-agent/index.md
+    - Codebase Generation: research/codebase-generation-prompt/index.md
+  - Architecture:
+    - C4 Context: architecture/c4-context.md
+    - C4 Container: architecture/c4-container.md
+    - ADRs:
+      - 0001 Research Loop: ADR/0001-research-loop.md
+  - Implementation:
+    - Backend: implementation/backend.md
+    - Frontend: implementation/frontend.md
+    - Agents: implementation/agents.md
+  - Testing:
+    - Unit Tests: testing/unit-tests.md
+    - Integration Tests: testing/integration-tests.md
+    - E2E Tests: testing/e2e-tests.md
+  - Deployment:
+    - Docker: deployment/docker.md
+    - Kubernetes: deployment/kubernetes.md
+    - Production: deployment/production.md
+  - API Reference:
+    - Overview: api/index.md
+    - Endpoints: api/endpoints.md
+    - WebSockets: api/websockets.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mcp/mcp
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX 

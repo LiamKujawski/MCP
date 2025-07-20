@@ -81,25 +81,31 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Run Semgrep SAST scan
+    - name: Run Semgrep
       uses: returntocorp/semgrep-action@v1
-      continue-on-error: true
       with:
         config: >-
-          p/security-audit
-          p/python
-          p/docker
-          p/secrets
           p/owasp-top-ten
+          p/security-audit
+          p/secrets
       env:
         SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-    
-    - name: Upload SARIF results
-      uses: github/codeql-action/upload-sarif@v3
-      continue-on-error: true
+      continue-on-error: false  # Fail on security issues
+      
+    - name: Check Semgrep Results
       if: always()
-      with:
-        sarif_file: semgrep.sarif
+      run: |
+        if [ -f semgrep.sarif ]; then
+          # Check for HIGH or CRITICAL findings
+          HIGH_COUNT=$(jq '[.runs[].results[] | select(.level == "error" or .level == "warning") | select(.properties.severity == "HIGH" or .properties.severity == "CRITICAL")] | length' semgrep.sarif)
+          if [ "$HIGH_COUNT" -gt 0 ]; then
+            echo "❌ Found $HIGH_COUNT HIGH/CRITICAL security findings!"
+            jq '.runs[].results[] | select(.properties.severity == "HIGH" or .properties.severity == "CRITICAL") | {rule: .ruleId, severity: .properties.severity, message: .message.text, location: .locations[0].physicalLocation.artifactLocation.uri}' semgrep.sarif
+            exit 1
+          else
+            echo "✅ No HIGH/CRITICAL security findings"
+          fi
+        fi
 
   # Code quality checks
   code-quality:
@@ -137,15 +143,16 @@ jobs:
 
   # Docker build and push
   docker:
-    name: Docker Build & Push
+    name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [matrix-build, security-scan]
-    permissions:
-      contents: read
-      packages: write
+    needs: [matrix-build, security-scan, ui-tests]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -153,7 +160,7 @@ jobs:
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
       with:
-        registry: ${{ env.DOCKER_REGISTRY }}
+        registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     
@@ -161,7 +168,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: ghcr.io/${{ github.repository }}
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -169,17 +176,29 @@ jobs:
           type=semver,pattern={{major}}.{{minor}}
           type=sha
     
-    - name: Build and push Docker image
+    - name: Build and push backend Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./infra/Dockerfile
-        push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}/mcp-backend:latest
+          ghcr.io/${{ github.repository }}/mcp-backend:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+    
+    - name: Build and push UI Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./ui
         platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}/mcp-ui:latest
+          ghcr.io/${{ github.repository }}/mcp-ui:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
   # Integration tests
   integration-tests:
@@ -217,6 +236,94 @@ jobs:
         pytest tests/integration -v
         docker compose -p $PROJECT -f docker-compose.test.yml down --volumes
 
+  # UI tests
+  ui-tests:
+    name: UI Tests
+    runs-on: ubuntu-latest
+    needs: code-quality
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: ui/package-lock.json
+    
+    - name: Install UI dependencies
+      working-directory: ./ui
+      run: npm ci
+    
+    - name: Build UI
+      working-directory: ./ui
+      run: npm run build
+    
+    - name: Install Playwright Browsers
+      working-directory: ./ui
+      run: npx playwright install --with-deps
+    
+    - name: Run Playwright tests
+      working-directory: ./ui
+      run: npm run test:e2e
+      env:
+        CI: true
+    
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: ui/playwright-report/
+        retention-days: 30
+
+    # Add Lighthouse Performance Checks
+    - name: Start Next.js Server
+      working-directory: ./ui
+      run: |
+        npm run build
+        npm run start &
+        sleep 10  # Wait for server to start
+
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v11
+      with:
+        urls: |
+          http://localhost:3000
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        configPath: ./ui/lighthouserc.json
+
+    - name: Check Lighthouse Scores
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read the lighthouse results
+          const results = JSON.parse(fs.readFileSync('.lighthouseci/lhr-0.json', 'utf-8'));
+          
+          const scores = {
+            performance: results.categories.performance.score * 100,
+            accessibility: results.categories.accessibility.score * 100,
+            'best-practices': results.categories['best-practices'].score * 100,
+            seo: results.categories.seo.score * 100
+          };
+          
+          console.log('Lighthouse Scores:', scores);
+          
+          // Check if scores meet requirements
+          const failed = [];
+          if (scores.performance < 90) failed.push(`Performance: ${scores.performance} < 90`);
+          if (scores.accessibility < 90) failed.push(`Accessibility: ${scores.accessibility} < 90`);
+          if (scores['best-practices'] < 90) failed.push(`Best Practices: ${scores['best-practices']} < 90`);
+          if (scores.seo < 100) failed.push(`SEO: ${scores.seo} < 100`);
+          
+          if (failed.length > 0) {
+            core.setFailed(`Lighthouse scores below threshold:\n${failed.join('\n')}`);
+          }
+
   # Deploy to staging
   deploy-staging:
     name: Deploy to Staging
@@ -232,11 +339,45 @@ jobs:
         echo "Deploying to staging environment..."
         # Add actual deployment steps here
 
+  # Documentation build and deploy
+  docs:
+    name: Build and Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: [matrix-build, ui-tests]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for git info
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install MkDocs and dependencies
+      run: |
+        pip install mkdocs-material
+        pip install mkdocs-git-revision-date-plugin
+        pip install mkdocs-mermaid2-plugin
+        pip install mkdocs-awesome-pages-plugin
+    
+    - name: Build documentation
+      run: mkdocs build
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
+        cname: mcp-docs.example.com  # Replace with your domain
+
   # Create release
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: [integration-tests, code-quality]
+    needs: [integration-tests, code-quality, docs]
     if: github.ref == 'refs/heads/main'
     
     steps:

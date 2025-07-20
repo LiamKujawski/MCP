@@ -1,355 +1,246 @@
-# Unified Agent Implementation Prompt: Complete Research Synthesis System
+# Σ-Builder Master Implementation Prompt - CLAUDE-4-OPUS Model
 
-## Table of Contents
-1. [Executive Overview](#executive-overview)
-2. [Mission and Phases](#mission-and-phases)
-3. [Research Reading Methodology](#research-reading-methodology)
-4. [Quick Start Actions](#quick-start-actions)
-5. [Implementation Roadmap](#implementation-roadmap)
+## System Context
+You are the Σ-Builder orchestrator implementing a fully automated Research → Synthesis → Experiment → Deploy → Optimize pipeline based on synthesized multi-model research.
 
----
+## Research Synthesis
+This prompt incorporates enhancements and insights from:
+- O3 Model Research: Focus on parallel task execution, ML-based anomaly detection, distributed agent architecture
+- Claude-4-Sonnet Research: Multi-layer reasoning engine, intelligent tool orchestration, adaptive UI
+- Claude-4-Opus Research: Advanced memory systems, meta-learning capabilities, social collaboration
 
-## Executive Overview
+## Implementation Requirements
 
-This unified prompt combines all guidance for implementing a research-driven AI agent system. You will:
-- Digest multi-model AI research (O3, Claude-4-Opus, Claude-4-Sonnet)
-- Synthesize insights from ChatGPT Agent and Codebase Generation research
-- Implement a production-ready system embodying all learned principles
+### Core Architecture
+- **Pattern**: Microservices with event-driven communication
+- **Components**:
+  - Research Digestion Service
+  - Synthesis Report Generator
+  - Implementation Plan Service
+  - Codebase Setup Service
+  - Documentation Service
+  - Quality Assurance Service
 
-### Expected Deliverables
-1. **Research Artifacts**
-   - RESEARCH_SYNTHESIS.md
-   - ARCHITECTURE_DECISIONS.md
-   - IMPLEMENTATION_ROADMAP.md
+### Technical Stack
+- **Backend**: 
+  - FastAPI with async/await patterns
+  - WebSocket support for real-time updates
+  - Redis for caching and pub/sub
+  - PostgreSQL for persistent storage
+- **Frontend**: 
+  - Next.js 13+ (App Router) with TypeScript
+  - Tailwind CSS for styling
+  - Radix UI for accessible components
+  - Socket.io for real-time communication
+- **Testing**: 
+  - Backend: pytest with ≥90% coverage
+  - Frontend: 
+    - Playwright E2E tests covering all user flows
+    - Jest for unit tests
+    - Storybook for component documentation
+- **Documentation**: 
+  - C4 diagrams in `/docs/architecture`
+  - ADRs using MADR template
+  - API documentation with OpenAPI/Swagger
+  - MkDocs Material for documentation site
 
-2. **Technical Deliverables**
-   - Working codebase with agent system
-   - Comprehensive test suite
-   - Complete documentation
-   - Infrastructure setup
+### Security Requirements
+- Semgrep and Bandit clean builds (zero HIGH/CRITICAL findings)
+- OWASP Top 10 compliance
+- Security headers implementation (CSP, HSTS, X-Frame-Options)
+- Input validation and sanitization
+- Rate limiting and DDoS protection
 
-### Time Investment
-- Research Reading: ~10.5 hours
-- Synthesis Creation: ~2 hours
-- Core Implementation: ~40 hours
-- Testing & Documentation: ~20 hours
-- **Total: ~72.5 hours**
+### Performance Requirements
+- Lighthouse scores: ≥90 Performance, ≥90 Accessibility, ≥90 Best Practices, 100 SEO
+- Core Web Vitals: LCP < 2.5s, FID < 100ms, CLS < 0.1
+- API response time: p99 < 200ms
+- WebSocket latency: < 50ms
 
----
+## Enhanced Features Based on Research
 
-## Mission and Phases
+### From O3 Research
+1. **Parallel Task Execution**
+   - Task graph analyzer for dependency detection
+   - Asyncio-based parallel execution
+   - Expected 3-5x speedup for complex tasks
 
-### Phase 1: Research Digestion
+2. **Advanced Threat Detection**
+   - ML-based anomaly detection
+   - Pattern recognition for code injection
+   - Real-time threat intelligence
 
-#### Systematic Research Review
-Read ALL research files in these directories:
-- `chatgpt-agent-research/` (all model subdirectories)
-- `codebase-generation-prompt-research/` (all model subdirectories)
+3. **Distributed Agent Architecture**
+   - Multi-region deployment
+   - Agent federation for fault tolerance
+   - Edge computing integration
 
-#### Reading Order
-1. Start with overviews (`01_overview.md`)
-2. Deep dive into architectures (`02_architecture-deep-dive.md`)
-3. Study codebase setups (`03_codebase-setup.md`)
-4. Analyze prompt structures (`04_prompt-structure.md`)
-5. Review enhancements (`05_enhancements.md`)
+### From Claude-4-Sonnet Research
+1. **Multi-Layer Reasoning Engine**
+   - Symbolic reasoning for logical deduction
+   - Causal modeling for relationships
+   - Analogical reasoning for patterns
+   - Metacognitive monitoring
 
-#### Extraction Focus
-For each document, extract:
-- **Core Concepts**: Fundamental principles
-- **Implementation Details**: Technical approaches
-- **Unique Perspectives**: Model-specific insights
-- **Common Patterns**: Recurring themes
-- **Contradictions**: Areas of disagreement
-- **Enhancement Opportunities**: Future directions
+2. **Intelligent Tool Orchestration**
+   - Dynamic tool selection based on context
+   - Performance-based tool optimization
+   - Workflow optimization
 
-### Phase 2: Knowledge Integration
+3. **Adaptive User Interface**
+   - User behavior modeling
+   - Dynamic interface generation
+   - Accessibility enhancement
 
-#### Synthesis Categories
-1. **Architecture Patterns**
-   - Microservices vs. Monolithic
-   - Event-driven vs. Request-response
-   - Scalability strategies
-   - Security implementations
+### From Claude-4-Opus Research
+1. **Long-term Memory System**
+   - Episodic memory for events
+   - Semantic memory for knowledge
+   - Procedural memory for skills
 
-2. **Technical Implementation**
-   - Programming languages/frameworks
-   - API design patterns
-   - Database architectures
-   - Message queuing systems
+2. **Multi-Agent Collaboration**
+   - Task splitting among agents
+   - Knowledge sharing framework
+   - Consensus building
 
-3. **Prompt Engineering**
-   - Multi-stage orchestration
-   - Context optimization
-   - Self-correction mechanisms
-   - Meta-prompting strategies
+3. **Meta-Learning Engine**
+   - Pattern extraction from execution
+   - Performance prediction
+   - Continuous optimization
 
-4. **Quality Assurance**
-   - Code quality metrics
-   - Security scanning
-   - Performance benchmarking
-   - CI/CD pipelines
+## UI/UX Requirements
 
-### Phase 3: Implementation
-
-#### Core Components to Build
-1. **Agent System Core**
-   - Agent Factory
-   - Message Bus
-   - State Management
-   - Task Orchestrator
-   - Memory System
-
-2. **Prompt Engineering System**
-   - Prompt Compiler
-   - Context Manager
-   - Template Engine
-   - Validation Framework
-
-3. **Code Generation Framework**
-   - AST Manipulator
-   - Language Adapters
-   - Quality Analyzer
-   - Security Scanner
-
-4. **Infrastructure**
-   - Service Mesh
-   - API Gateway
-   - Event Stream
-   - Monitoring Stack
-
----
-
-## Research Reading Methodology
-
-### Reading Strategy Timeline
-
-#### Overview Scan (30 minutes)
-```bash
-find . -name "01_overview.md" -type f | sort | while read file; do
-    echo "=== Reading: $file ==="
-    head -50 "$file"
-done
+### Frontend Application Structure
+```
+ui/
+├── src/
+│   ├── app/                    # Next.js 13+ App Router
+│   │   ├── (auth)/            # Auth group
+│   │   ├── (dashboard)/       # Dashboard group
+│   │   ├── api/               # API routes
+│   │   ├── layout.tsx         # Root layout
+│   │   └── page.tsx           # Home page
+│   ├── components/
+│   │   ├── ui/                # Base UI components
+│   │   ├── features/          # Feature components
+│   │   └── layouts/           # Layout components
+│   ├── hooks/                 # Custom React hooks
+│   ├── lib/                   # Utilities
+│   └── stories/               # Storybook stories
+├── playwright/                # E2E tests
+├── __tests__/                # Unit tests
+└── .storybook/               # Storybook config
 ```
 
-#### Architecture Analysis (2 hours)
-Focus on:
-- System design patterns
-- Communication protocols
-- Data flow architectures
-- Security architectures
-- Scalability patterns
+### Required UI Components
+1. **Dashboard**
+   - Real-time workflow status
+   - Agent performance metrics
+   - Resource utilization graphs
 
-#### Implementation Details (3 hours)
-Extract:
-- Directory structures
-- Technology stacks
-- Dependencies
-- Configuration approaches
+2. **Research Browser**
+   - File tree navigation
+   - Syntax highlighting
+   - Search functionality
 
-#### Prompt Engineering (2 hours)
-Analyze:
-- Composition strategies
-- Context management
-- Multi-stage processing
-- Optimization techniques
+3. **Synthesis Visualizer**
+   - Knowledge graph display
+   - Consensus/divergence views
+   - Interactive exploration
 
-### Synthesis Methodology
+4. **Implementation Monitor**
+   - Live code generation
+   - Progress indicators
+   - Error highlighting
 
-1. **Create Model Perspective Maps**
-   - Core philosophy
-   - Unique contributions
-   - Technical strengths
-   - Implementation priorities
+5. **Settings Panel**
+   - Agent configuration
+   - Security settings
+   - Performance tuning
 
-2. **Identify Convergence Points**
-   - Common patterns
-   - Shared best practices
-   - Universal principles
+### Storybook Requirements
+- Story for every component
+- Controls for all props
+- Accessibility testing
+- Visual regression testing
+- Documentation pages
 
-3. **Map Divergence Areas**
-   - Alternative approaches
-   - Conflicting recommendations
-   - Unique innovations
+### Playwright Test Coverage
+- Authentication flows
+- Dashboard interactions
+- Research navigation
+- Synthesis operations
+- Implementation monitoring
+- Settings management
+- Error scenarios
+- Performance scenarios
 
-4. **Develop Integration Strategy**
-   - Core features from convergence
-   - Alternative implementations
-   - Experimental features
+## Implementation Phases
 
----
+### Phase 1: Core Infrastructure (Week 1-2)
+1. Set up monorepo structure
+2. Implement core agent architecture
+3. Create base UI components with Storybook
+4. Set up CI/CD pipeline with security scanning
 
-## Quick Start Actions
+### Phase 2: Agent Implementation (Week 3-4)
+1. Implement multi-agent orchestration
+2. Add tool integration layer
+3. Create safety monitoring system
+4. Build virtual environment manager
+5. Develop corresponding UI views
 
-### Step 1: Initialize Project
-```bash
-# Create project structure
-mkdir -p src/{core,agents,prompts,generators,orchestration,security,monitoring,utils}
-mkdir -p infrastructure/{docker,kubernetes,terraform,monitoring}
-mkdir -p tests/{unit,integration,e2e,performance}
-mkdir -p docs/{architecture,api,deployment,development}
-mkdir -p examples
+### Phase 3: UI Development (Week 5-6)
+1. Create responsive Next.js frontend
+2. Implement real-time updates via WebSockets
+3. Add Storybook stories for all components
+4. Write comprehensive Playwright tests
+5. Optimize for Lighthouse scores
 
-# Initialize git repository
-git init
-echo "# AI Agent System" > README.md
-```
+### Phase 4: Integration & Testing (Week 7)
+1. Integrate all components
+2. Run security scans (Semgrep, Bandit)
+3. Performance optimization
+4. Load testing
+5. Accessibility audit
 
-### Step 2: Setup Technology Stack
-```python
-# requirements.txt
-fastapi>=0.104.0
-pydantic>=2.5.0
-redis>=5.0.0
-celery>=5.3.0
-prometheus-client>=0.19.0
-opentelemetry-api>=1.21.0
-pytest>=7.4.0
-black>=23.0.0
-mypy>=1.7.0
-```
+### Phase 5: Documentation & Deployment (Week 8)
+1. Generate C4 diagrams
+2. Write ADRs for key decisions
+3. Create deployment configurations
+4. Set up monitoring and alerting
+5. Deploy MkDocs documentation site
 
-### Step 3: Create Base Components
+## Acceptance Criteria
+- [ ] All tests passing with ≥90% coverage
+- [ ] Lighthouse scores ≥90/90/90/100
+- [ ] Zero HIGH/CRITICAL security findings
+- [ ] Complete C4 documentation
+- [ ] Deployment automation working
+- [ ] Real-time UI updates functional
+- [ ] All Playwright tests passing
+- [ ] Storybook deployed with all components
+- [ ] MkDocs site auto-publishing
 
-#### Base Agent (`src/core/base_agent.py`):
-```python
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
-import asyncio
-from dataclasses import dataclass
+## Additional Context
 
-@dataclass
-class AgentConfig:
-    name: str
-    capabilities: list[str]
-    memory_size: int = 1000
-    
-class BaseAgent(ABC):
-    """Base agent incorporating insights from all research models"""
-    
-    def __init__(self, config: AgentConfig):
-        self.config = config
-        self.memory = []
-        self.state = {}
-        
-    @abstractmethod
-    async def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Process input according to agent's capabilities"""
-        pass
-```
+### Code Quality Standards
+- TypeScript strict mode enabled
+- ESLint + Prettier configured
+- Pre-commit hooks for linting
+- Automated code review checks
 
-#### Prompt System (`src/prompts/base_prompt.py`):
-```python
-from typing import List, Dict, Any
-from pydantic import BaseModel
+### Monitoring & Observability
+- OpenTelemetry instrumentation
+- Distributed tracing
+- Custom metrics and dashboards
+- Error tracking with Sentry
 
-class PromptStage(BaseModel):
-    name: str
-    template: str
-    variables: Dict[str, Any]
-    
-class MultiStagePrompt:
-    """Multi-stage prompt system from codebase generation research"""
-    
-    def __init__(self, stages: List[PromptStage]):
-        self.stages = stages
-        
-    def compile(self, context: Dict[str, Any]) -> str:
-        """Compile prompt through multiple stages"""
-        result = ""
-        for stage in self.stages:
-            result = self._apply_stage(stage, context, result)
-        return result
-```
-
-### Step 4: Implementation Checklist
-
-#### Agent System Components
-- [ ] Create agent_factory.py - Dynamic agent creation
-- [ ] Create message_bus.py - Inter-agent communication
-- [ ] Create state_manager.py - Distributed state
-- [ ] Create task_orchestrator.py - Task decomposition
-- [ ] Create memory_system.py - Memory management
-
-#### Prompt Engineering Components
-- [ ] Create prompt_compiler.py - Multi-stage generation
-- [ ] Create context_manager.py - Context optimization
-- [ ] Create template_engine.py - Dynamic templating
-- [ ] Create validation.py - Quality assurance
-- [ ] Create optimizer.py - Performance tuning
-
-#### Code Generation Components
-- [ ] Create ast_manipulator.py - AST operations
-- [ ] Create language_adapters/ - Multi-language support
-- [ ] Create quality_analyzer.py - Code metrics
-- [ ] Create scanner.py - Security validation
-- [ ] Create doc_generator.py - Auto documentation
+### DevOps Requirements
+- GitOps workflow
+- Blue-green deployments
+- Automated rollbacks
+- Infrastructure as Code (Terraform)
 
 ---
-
-## Implementation Roadmap
-
-### Week 1: Research & Synthesis
-- Days 1-2: Read all research materials
-- Day 3: Create synthesis document
-- Days 4-5: Design system architecture
-
-### Week 2: Core Implementation
-- Days 1-2: Implement agent system core
-- Days 3-4: Build prompt engineering pipeline
-- Day 5: Create basic orchestration
-
-### Week 3: Advanced Features
-- Days 1-2: Code generation framework
-- Days 3-4: Security and monitoring
-- Day 5: Integration testing
-
-### Week 4: Production Readiness
-- Days 1-2: Performance optimization
-- Days 3-4: Documentation
-- Day 5: Deployment setup
-
-## Success Criteria
-
-### Technical Requirements
-- Handle 1000+ concurrent operations
-- Sub-second response times
-- 80%+ test coverage
-- Zero critical security vulnerabilities
-
-### Quality Standards
-- Clean, maintainable code
-- Comprehensive documentation
-- Observable systems
-- Scalable architecture
-
-### Research Integration
-- All key insights incorporated
-- Multiple AI approaches working in harmony
-- Novel synthesis of ideas
-- Practical, production-ready implementation
-
----
-
-## Key Principles to Remember
-
-1. **Multi-Model Intelligence**: Value diverse AI perspectives
-2. **Research-Driven**: Every decision backed by research insights
-3. **Practical Focus**: Working code over theoretical perfection
-4. **Innovation Through Synthesis**: Combine ideas in novel ways
-5. **Observable by Default**: Metrics and logging everywhere
-6. **Security First**: Multiple validation layers
-7. **Progressive Enhancement**: Start simple, add complexity
-
----
-
-## Final Instructions
-
-1. Begin by reading ALL research materials systematically
-2. Create synthesis document before any coding
-3. Implement incrementally with tests
-4. Document all architectural decisions
-5. Focus on creating something greater than the sum of its parts
-
-The goal is to leverage collective intelligence from multiple AI models to create a superior system that embodies the best insights from all research perspectives.
-
-Begin implementation following the phases above. Your success will be measured by how effectively you integrate diverse wisdom into practical, working code.
+Generated: 2025-07-20

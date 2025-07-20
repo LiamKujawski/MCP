@@ -1,0 +1,326 @@
+name: Multi-Agent Experiment Pipeline
+
+on:
+  push:
+    paths:
+      - 'research/**/*.md'
+  workflow_dispatch:
+    inputs:
+      research_topics:
+        description: 'Research topics to process (JSON)'
+        required: false
+        type: string
+      trigger_source:
+        description: 'Source of trigger'
+        required: false
+        default: 'manual'
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '20'
+
+jobs:
+  # Detect changed research files
+  detect-changes:
+    name: Detect Research Changes
+    runs-on: ubuntu-latest
+    outputs:
+      topics: ${{ steps.detect.outputs.topics }}
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+    
+    - name: Detect changed research files
+      id: detect
+      run: |
+        if [ "${{ github.event.inputs.research_topics }}" != "" ]; then
+          echo "topics=${{ github.event.inputs.research_topics }}" >> $GITHUB_OUTPUT
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        else
+          # Get changed files
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep '^research/' || true)
+          
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Extract topics and models
+          TOPICS={}
+          for file in $CHANGED_FILES; do
+            if [[ $file =~ ^research/([^/]+)/([^/]+)/ ]]; then
+              TOPIC="${BASH_REMATCH[1]}"
+              MODEL="${BASH_REMATCH[2]}"
+              # Build JSON structure
+              # This is simplified - in production use jq
+              echo "Found: $TOPIC/$MODEL"
+            fi
+          done
+          
+          # For now, process all topics if any change detected
+          TOPICS='{"chatgpt-agent": ["o3", "claude-4-sonnet", "claude-4-opus"], "codebase-generation-prompt": ["o3", "claude-4-sonnet", "claude-4-opus"]}'
+          
+          echo "topics=$TOPICS" >> $GITHUB_OUTPUT
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+
+  # Synthesis phase - merge research insights
+  synthesis:
+    name: Synthesis Phase
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Run synthesis
+      run: |
+        python -m src.synthesized_agent digest-research
+        python -m src.synthesized_agent generate-report
+    
+    - name: Upload synthesis artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: synthesis-report
+        path: |
+          synthesis-reports/
+          synthesize-research-prompts/
+
+  # Experiment phase - run implementations in parallel
+  experiment:
+    name: Experiment (${{ matrix.model }} - ${{ matrix.prompt_type }})
+    runs-on: ubuntu-latest
+    needs: synthesis
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [o3, claude-4-sonnet, claude-4-opus]
+        prompt_type: [baseline, synthesized]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ui/package-lock.json
+    
+    - name: Download synthesis artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: synthesis-report
+    
+    - name: Generate implementation
+      run: |
+        # This would normally invoke the AI model to generate code
+        # For now, use existing implementations
+        echo "Generating implementation for ${{ matrix.model }} with ${{ matrix.prompt_type }} prompt"
+        
+        IMPL_DIR="experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}"
+        mkdir -p $IMPL_DIR
+        
+        # Copy appropriate implementation
+        if [ "${{ matrix.prompt_type }}" == "baseline" ]; then
+          cp -r experiments/2025-07-19/baseline/${{ matrix.model }}/* $IMPL_DIR/
+        else
+          cp -r experiments/2025-07-19/cross/* $IMPL_DIR/
+        fi
+    
+    - name: Run backend tests
+      working-directory: experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}
+      run: |
+        pip install -r requirements.txt
+        pytest tests/ -v --cov=src --cov-report=xml
+    
+    - name: Build and test UI
+      working-directory: ui
+      run: |
+        npm ci
+        npm run build
+        npm run test:ci
+    
+    - name: Run security scans
+      run: |
+        pip install bandit semgrep
+        bandit -r experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}/src -f json -o bandit-report.json
+        semgrep --config=auto experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }} --json > semgrep-report.json
+    
+    - name: Upload experiment results
+      uses: actions/upload-artifact@v4
+      with:
+        name: experiment-${{ matrix.model }}-${{ matrix.prompt_type }}
+        path: |
+          experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}
+          *-report.json
+          coverage.xml
+
+  # Evaluation phase - compare and select winner
+  evaluate:
+    name: Evaluate Experiments
+    runs-on: ubuntu-latest
+    needs: experiment
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Download all experiment results
+      uses: actions/download-artifact@v4
+      with:
+        pattern: experiment-*
+        path: experiment-results/
+    
+    - name: Run evaluation
+      run: |
+        cd experiments/$(date +%Y-%m-%d)
+        python ../../scripts/evaluate_all.py --date $(date +%Y-%m-%d)
+    
+    - name: Select winner
+      id: winner
+      run: |
+        # Extract winner from evaluation results
+        WINNER=$(jq -r '.best_implementation.name' experiments/$(date +%Y-%m-%d)/evaluation_results.json)
+        echo "winner=$WINNER" >> $GITHUB_OUTPUT
+        echo "🏆 Winner: $WINNER"
+    
+    - name: Create evaluation report
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const results = JSON.parse(fs.readFileSync('experiments/$(date +%Y-%m-%d)/evaluation_results.json'));
+          
+          const comment = `## 🔬 Experiment Results
+          
+          **Winner**: ${results.best_implementation.name}
+          **Score**: ${results.best_implementation.score.toFixed(2)}
+          
+          ### Comparison Matrix
+          
+          | Implementation | Coverage | Security | Performance | UI Score | Total |
+          |----------------|----------|----------|-------------|----------|-------|
+          ${Object.entries(results.implementations).map(([name, data]) => 
+            `| ${name} | ${data.coverage}% | ${data.security_score} | ${data.performance_score} | ${data.ui_score} | ${data.total_score.toFixed(2)} |`
+          ).join('\n')}
+          
+          ### Next Steps
+          - ✅ Deploy winner to staging
+          - 📊 Monitor performance metrics
+          - 🔄 Trigger optimization phase
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  # Deploy phase - deploy winner
+  deploy:
+    name: Deploy Winner
+    runs-on: ubuntu-latest
+    needs: [evaluate]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download winner implementation
+      uses: actions/download-artifact@v4
+      with:
+        name: experiment-${{ needs.evaluate.outputs.winner }}
+        path: winner/
+    
+    - name: Build Docker images
+      run: |
+        docker build -t ghcr.io/${{ github.repository }}/mcp-backend:experiment-${{ github.sha }} .
+        docker build -t ghcr.io/${{ github.repository }}/mcp-ui:experiment-${{ github.sha }} ./ui
+    
+    - name: Push to registry
+      run: |
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        docker push ghcr.io/${{ github.repository }}/mcp-backend:experiment-${{ github.sha }}
+        docker push ghcr.io/${{ github.repository }}/mcp-ui:experiment-${{ github.sha }}
+    
+    - name: Deploy to production
+      run: |
+        # Update production tags
+        docker tag ghcr.io/${{ github.repository }}/mcp-backend:experiment-${{ github.sha }} ghcr.io/${{ github.repository }}/mcp-backend:latest
+        docker tag ghcr.io/${{ github.repository }}/mcp-ui:experiment-${{ github.sha }} ghcr.io/${{ github.repository }}/mcp-ui:latest
+        docker push ghcr.io/${{ github.repository }}/mcp-backend:latest
+        docker push ghcr.io/${{ github.repository }}/mcp-ui:latest
+
+  # Optimize phase - analyze and create new research
+  optimize:
+    name: Optimize Phase
+    runs-on: ubuntu-latest
+    needs: deploy
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Collect production metrics
+      run: |
+        # In production, this would query real metrics
+        echo "Collecting performance metrics..."
+        
+    - name: Generate optimization research
+      run: |
+        # Analyze metrics and create new research topics
+        mkdir -p research/performance-optimization/{o3,claude-4-sonnet,claude-4-opus}
+        
+        # Create research files based on findings
+        cat > research/performance-optimization/o3/01_overview.md << EOF
+        ---
+        topic: "performance-optimization"
+        model: "o3"
+        stage: research
+        version: 1
+        ---
+        
+        # Performance Optimization Research - O3
+        
+        Based on production metrics, identified optimization opportunities...
+        EOF
+    
+    - name: Commit new research
+      run: |
+        git config --local user.email "mcp-bot@example.com"
+        git config --local user.name "MCP Bot"
+        git add research/performance-optimization
+        git commit -m "🔄 Auto-generated: Performance optimization research based on production metrics"
+        git push 

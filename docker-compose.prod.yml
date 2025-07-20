@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: mcp-traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - mcp-network
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-acme:/acme
+      - ./traefik/traefik.yml:/traefik.yml:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-secure.entrypoints=websecure"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}"
+
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: mcp-postgres
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mcp}
+      POSTGRES_USER: ${POSTGRES_USER:-mcp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENV=production
+    image: ghcr.io/${GITHUB_REPOSITORY}/mcp-backend:latest
+    container_name: mcp-backend
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-mcp}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-mcp}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${DOMAIN}
+      - CORS_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.rule=Host(`api.${DOMAIN}`)"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=cloudflare"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
+      # WebSocket support
+      - "traefik.http.routers.api-ws.entrypoints=websecure"
+      - "traefik.http.routers.api-ws.rule=Host(`api.${DOMAIN}`) && PathPrefix(`/ws`)"
+      - "traefik.http.routers.api-ws.tls=true"
+      - "traefik.http.routers.api-ws.tls.certresolver=cloudflare"
+      - "traefik.http.services.api-ws.loadbalancer.server.port=8000"
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=https://api.${DOMAIN}
+        - NEXT_PUBLIC_WS_URL=wss://api.${DOMAIN}
+    image: ghcr.io/${GITHUB_REPOSITORY}/mcp-ui:latest
+    container_name: mcp-ui
+    restart: unless-stopped
+    networks:
+      - mcp-network
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://api.${DOMAIN}
+      - NEXT_PUBLIC_WS_URL=wss://api.${DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui.entrypoints=websecure"
+      - "traefik.http.routers.ui.rule=Host(`${DOMAIN}`) || Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.ui.tls=true"
+      - "traefik.http.routers.ui.tls.certresolver=cloudflare"
+      - "traefik.http.services.ui.loadbalancer.server.port=3000"
+      # Security headers
+      - "traefik.http.middlewares.ui-headers.headers.customResponseHeaders.X-Frame-Options=DENY"
+      - "traefik.http.middlewares.ui-headers.headers.customResponseHeaders.X-Content-Type-Options=nosniff"
+      - "traefik.http.middlewares.ui-headers.headers.customResponseHeaders.X-XSS-Protection=1; mode=block"
+      - "traefik.http.middlewares.ui-headers.headers.customResponseHeaders.Referrer-Policy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.ui-headers.headers.customResponseHeaders.Permissions-Policy=geolocation=(), microphone=(), camera=()"
+      - "traefik.http.middlewares.ui-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.ui-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.ui-headers.headers.stsPreload=true"
+      - "traefik.http.routers.ui.middlewares=ui-headers"
+
+networks:
+  mcp-network:
+    external: true
+
+volumes:
+  traefik-acme:
+  redis-data:
+  postgres-data: 

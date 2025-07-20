@@ -281,7 +281,6 @@ jobs:
     - name: Start Next.js Server
       working-directory: ./ui
       run: |
-        npm run build
         npm run start &
         sleep 10  # Wait for server to start
 

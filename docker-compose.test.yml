@@ -11,4 +11,10 @@ services:
       - redis
     
   redis:
-    image: redis:7-alpine 
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # No `ports:` key — Compose will assign a random host port automatically. 

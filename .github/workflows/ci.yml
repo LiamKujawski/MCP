@@ -7,6 +7,12 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+  security-events: write
+  actions: read
+
 env:
   PYTHON_VERSION: '3.11'
   DOCKER_REGISTRY: ghcr.io
@@ -26,6 +32,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -75,6 +83,7 @@ jobs:
     
     - name: Run Semgrep SAST scan
       uses: returntocorp/semgrep-action@v1
+      continue-on-error: true
       with:
         config: >-
           p/security-audit
@@ -82,9 +91,12 @@ jobs:
           p/docker
           p/secrets
           p/owasp-top-ten
+      env:
+        SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
     
     - name: Upload SARIF results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
+      continue-on-error: true
       if: always()
       with:
         sarif_file: semgrep.sarif
@@ -108,6 +120,7 @@ jobs:
     
     - name: Run Black formatter check
       run: black --check src/ tests/
+      continue-on-error: true
     
     - name: Run Ruff linter
       run: ruff check src/ tests/

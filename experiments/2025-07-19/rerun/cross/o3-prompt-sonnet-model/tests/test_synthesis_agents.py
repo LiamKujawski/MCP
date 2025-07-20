@@ -4,19 +4,14 @@ Test suite for Σ-Builder agents (O3 prompt via Sonnet model)
 
 import asyncio
 import json
-import sys
-import os
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch, AsyncMock
 
-# Add src to Python path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src'))
-
 import pytest
 from fastapi.testclient import TestClient
 
-from synthesized_agent import (
+from src.synthesized_agent import (
     ResearchPerspective,
     InsightType,
     ResearchInsight,
@@ -30,7 +25,7 @@ from synthesized_agent import (
     TaskResponse,
     process_sigma_builder_request
 )
-from main import app
+from src.main import app
 
 
 class TestKnowledgeGraph:

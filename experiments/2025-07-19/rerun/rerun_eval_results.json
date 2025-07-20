@@ -1,0 +1,73 @@
+{
+  "winner": "o3-prompt-sonnet-model",
+  "results": {
+    "baseline": {
+      "o3": {
+        "test_count": 18,
+        "complexity": 3.33,
+        "functions": 6,
+        "lines": 492,
+        "has_docker": true,
+        "score": 114.33333333333333
+      },
+      "opus": {
+        "test_count": 20,
+        "complexity": 1.78,
+        "functions": 18,
+        "lines": 791,
+        "has_docker": true,
+        "score": 106.44444444444444
+      },
+      "sonnet": {
+        "test_count": 18,
+        "complexity": 2.22,
+        "functions": 9,
+        "lines": 767,
+        "has_docker": true,
+        "score": 101.55555555555556
+      }
+    },
+    "cross": {
+      "o3-prompt-opus-model": {
+        "test_count": 24,
+        "complexity": 3.29,
+        "functions": 7,
+        "lines": 629,
+        "has_docker": true,
+        "score": 126.42857142857143
+      },
+      "o3-prompt-sonnet-model": {
+        "test_count": 26,
+        "complexity": 1.76,
+        "functions": 17,
+        "lines": 806,
+        "has_docker": true,
+        "score": 138.47058823529412
+      }
+    },
+    "timestamp": "2025-07-19T22:22:01.925833",
+    "type": "rerun"
+  },
+  "ranking": [
+    [
+      "o3-prompt-sonnet-model",
+      138.47058823529412
+    ],
+    [
+      "o3-prompt-opus-model",
+      126.42857142857143
+    ],
+    [
+      "o3",
+      114.33333333333333
+    ],
+    [
+      "opus",
+      106.44444444444444
+    ],
+    [
+      "sonnet",
+      101.55555555555556
+    ]
+  ]
+}

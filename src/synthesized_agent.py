@@ -8,13 +8,12 @@ ingestion agent through Claude Sonnet's holistic and synthesis-focused approach.
 import asyncio
 import json
 import logging
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional
 
 import networkx as nx
 from pydantic import BaseModel, Field

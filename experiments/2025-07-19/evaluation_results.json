@@ -1,0 +1,128 @@
+{
+  "baseline": {
+    "o3": {
+      "path": "baseline\\o3",
+      "test_count": 18,
+      "test_pass_rate": 85.0,
+      "cyclomatic_complexity": 3.33,
+      "docker_exists": true,
+      "docker_image_size": "185MB",
+      "lint_status": "passed",
+      "files_analyzed": 4,
+      "total_lines": 492,
+      "functions_count": 6,
+      "classes_count": 8
+    },
+    "opus": {
+      "path": "baseline\\opus",
+      "test_count": 20,
+      "test_pass_rate": 75.0,
+      "cyclomatic_complexity": 1.78,
+      "docker_exists": true,
+      "docker_image_size": "250MB",
+      "lint_status": "passed",
+      "files_analyzed": 3,
+      "total_lines": 791,
+      "functions_count": 18,
+      "classes_count": 13
+    },
+    "sonnet": {
+      "path": "baseline\\sonnet",
+      "test_count": 18,
+      "test_pass_rate": 80.0,
+      "cyclomatic_complexity": 2.22,
+      "docker_exists": true,
+      "docker_image_size": "220MB",
+      "lint_status": "passed",
+      "files_analyzed": 4,
+      "total_lines": 767,
+      "functions_count": 9,
+      "classes_count": 11
+    }
+  },
+  "cross": {
+    "o3-prompt-opus-model": {
+      "path": "cross\\o3-prompt-opus-model",
+      "test_count": 24,
+      "test_pass_rate": 85.0,
+      "cyclomatic_complexity": 3.29,
+      "docker_exists": true,
+      "docker_image_size": "185MB",
+      "lint_status": "passed",
+      "files_analyzed": 2,
+      "total_lines": 629,
+      "functions_count": 7,
+      "classes_count": 7
+    },
+    "o3-prompt-sonnet-model": {
+      "path": "cross\\o3-prompt-sonnet-model",
+      "test_count": 26,
+      "test_pass_rate": 85.0,
+      "cyclomatic_complexity": 1.76,
+      "docker_exists": true,
+      "docker_image_size": "185MB",
+      "lint_status": "passed",
+      "files_analyzed": 2,
+      "total_lines": 806,
+      "functions_count": 17,
+      "classes_count": 14
+    }
+  },
+  "summary": {
+    "total_experiments": 5,
+    "baseline_count": 3,
+    "cross_count": 2,
+    "best_baseline": {
+      "name": "o3",
+      "score": 85.84,
+      "metrics": {
+        "path": "baseline\\o3",
+        "test_count": 18,
+        "test_pass_rate": 85.0,
+        "cyclomatic_complexity": 3.33,
+        "docker_exists": true,
+        "docker_image_size": "185MB",
+        "lint_status": "passed",
+        "files_analyzed": 4,
+        "total_lines": 492,
+        "functions_count": 6,
+        "classes_count": 8
+      }
+    },
+    "best_cross": {
+      "name": "o3-prompt-sonnet-model",
+      "score": 88.98,
+      "metrics": {
+        "path": "cross\\o3-prompt-sonnet-model",
+        "test_count": 26,
+        "test_pass_rate": 85.0,
+        "cyclomatic_complexity": 1.76,
+        "docker_exists": true,
+        "docker_image_size": "185MB",
+        "lint_status": "passed",
+        "files_analyzed": 2,
+        "total_lines": 806,
+        "functions_count": 17,
+        "classes_count": 14
+      }
+    },
+    "overall_best": {
+      "name": "o3-prompt-sonnet-model",
+      "score": 88.98,
+      "metrics": {
+        "path": "cross\\o3-prompt-sonnet-model",
+        "test_count": 26,
+        "test_pass_rate": 85.0,
+        "cyclomatic_complexity": 1.76,
+        "docker_exists": true,
+        "docker_image_size": "185MB",
+        "lint_status": "passed",
+        "files_analyzed": 2,
+        "total_lines": 806,
+        "functions_count": 17,
+        "classes_count": 14
+      }
+    },
+    "timestamp": "2025-07-19T21:30:03.150868"
+  }
+}

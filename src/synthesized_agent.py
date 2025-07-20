@@ -204,8 +204,24 @@ class ResearchDigestionAgent(BaseΣAgent):
         
         self.log_progress(f"Processed {files_processed} files, extracted {len(insights_extracted)} insights")
         
+        # Convert knowledge graph to serializable format
+        knowledge_graph_data = {
+            "insights": {
+                id: {
+                    "id": insight.id,
+                    "source_file": insight.source_file,
+                    "perspective": insight.perspective.value,
+                    "type": insight.type.value,
+                    "content": insight.content
+                }
+                for id, insight in self.knowledge_graph.insights.items()
+            },
+            "nodes_count": self.knowledge_graph.graph.number_of_nodes(),
+            "edges_count": self.knowledge_graph.graph.number_of_edges()
+        }
+        
         return {
-            "knowledge_graph": self.knowledge_graph,
+            "knowledge_graph": knowledge_graph_data,
             "insights_count": len(insights_extracted),
             "files_processed": files_processed,
             "consensus_patterns": consensus,

@@ -1,4 +1,4 @@
-# ChatGPT Agent Overview - O3 Analysis
+# ChatGPT Agent Overview - Model-Agnostic Analysis
 
 ## Executive Summary
 

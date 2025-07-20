@@ -152,21 +152,21 @@ CMD ["python", "main.py"]
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: o3-generator
+  name: codegen-generator
   namespace: ai-tools
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: o3-generator
+      app: codegen-generator
   template:
     metadata:
       labels:
-        app: o3-generator
+        app: codegen-generator
     spec:
       containers:
       - name: generator
-        image: your-registry/o3-generator:latest
+        image: your-registry/codegen-generator:latest
         resources:
           requests:
             memory: "8Gi"
@@ -179,7 +179,7 @@ spec:
           value: "production"
         envFrom:
         - secretRef:
-            name: o3-secrets
+            name: codegen-secrets
         ports:
         - containerPort: 8080
         livenessProbe:
@@ -192,11 +192,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: o3-generator-service
+  name: codegen-generator-service
   namespace: ai-tools
 spec:
   selector:
-    app: o3-generator
+    app: codegen-generator
   ports:
   - protocol: TCP
     port: 80

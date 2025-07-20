@@ -305,12 +305,17 @@ class TestFastAPIEndpoints:
     def test_execute_phase_endpoint(self, client):
         """Test phase execution endpoint"""
         request_data = {
-            "phase": ΣBuilderPhase.RESEARCH_DIGESTION.value,
+            "phase": "research_digestion",  # Use string directly
             "context": {}
         }
         
         with patch.object(Path, "exists", return_value=True):
             response = client.post("/phase/execute", json=request_data)
+        
+        # If we get a 400, print the error for debugging
+        if response.status_code != 200:
+            print(f"Response status: {response.status_code}")
+            print(f"Response body: {response.json()}")
         
         assert response.status_code == 200
         data = response.json()

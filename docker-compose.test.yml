@@ -11,6 +11,4 @@ services:
       - redis
     
   redis:
-    image: redis:7-alpine
-    ports:
-      - "${REDIS_PORT:-6379}:6379" 
+    image: redis:7-alpine 

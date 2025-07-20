@@ -254,9 +254,14 @@ async def general_exception_handler(request, exc):
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+    
+    # Make bind address configurable, default to loopback for security
+    host = os.getenv("BIND_HOST", "127.0.0.1")  # nosec B104
+    
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
+        host=host,
         port=8000,
         reload=True,
         log_level="info"

@@ -137,36 +137,15 @@ jobs:
     
     - name: Generate implementation
       run: |
-        # This would normally invoke the AI model to generate code
-        # For now, use existing implementations
         echo "Generating implementation for ${{ matrix.model }} with ${{ matrix.prompt_type }} prompt"
         
         EXPERIMENT_DATE=$(date +%Y-%m-%d)
         echo "EXPERIMENT_DATE=$EXPERIMENT_DATE" >> $GITHUB_ENV
         
         IMPL_DIR="experiments/$EXPERIMENT_DATE/${{ matrix.prompt_type }}/${{ matrix.model }}"
-        mkdir -p $IMPL_DIR
         
-        # Copy appropriate implementation
-        if [ "${{ matrix.prompt_type }}" == "baseline" ]; then
-          # Check if baseline exists for this model, otherwise use o3 as template
-          if [ -d "experiments/2025-07-19/baseline/${{ matrix.model }}" ]; then
-            cp -r experiments/2025-07-19/baseline/${{ matrix.model }}/* $IMPL_DIR/
-          else
-            echo "Using o3 baseline as template for ${{ matrix.model }}"
-            cp -r experiments/2025-07-19/baseline/o3/* $IMPL_DIR/
-          fi
-        else
-          # For synthesized, check if cross implementation exists
-          if [ -d "experiments/2025-07-19/cross/${{ matrix.model }}-prompt-opus-model" ]; then
-            cp -r experiments/2025-07-19/cross/${{ matrix.model }}-prompt-opus-model/* $IMPL_DIR/
-          elif [ -d "experiments/2025-07-19/cross/o3-prompt-opus-model" ]; then
-            cp -r experiments/2025-07-19/cross/o3-prompt-opus-model/* $IMPL_DIR/
-          else
-            echo "ERROR: No synthesized implementation found"
-            exit 1
-          fi
-        fi
+        # Generate actual implementation using our generator script
+        python scripts/generate_implementation.py "${{ matrix.model }}" "${{ matrix.prompt_type }}" "$IMPL_DIR"
     
     - name: Run backend tests
       run: |
@@ -248,15 +227,8 @@ jobs:
     
     - name: Run evaluation
       run: |
-        # Check if experiment directory exists
-        if [ -d "experiments/${{ env.EXPERIMENT_DATE }}" ]; then
-          cd experiments/${{ env.EXPERIMENT_DATE }}
-          python ../../scripts/evaluate_all.py --date ${{ env.EXPERIMENT_DATE }}
-        else
-          echo "No experiments found for date ${{ env.EXPERIMENT_DATE }}, creating dummy results"
-          mkdir -p experiments/${{ env.EXPERIMENT_DATE }}
-          echo '{"best_implementation": {"name": "baseline-o3", "score": 0}, "implementations": {}}' > experiments/${{ env.EXPERIMENT_DATE }}/evaluation_results.json
-        fi
+        # Run the evaluation script
+        python scripts/evaluate_all.py --date ${{ env.EXPERIMENT_DATE }}
     
     - name: Select winner
       id: winner

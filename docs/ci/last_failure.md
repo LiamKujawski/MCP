@@ -69,6 +69,18 @@
 - **Error**: `/app/public": not found`
 - **Fix Applied**: Created public directory
 
+### Iteration 7 - Experiment Pipeline Logic Fix
+
+**Issue**: Experiment pipeline was "green" but not actually working
+- Not generating real implementations
+- Not running actual evaluations
+- Just copying old code from 2025-07-19
+
+**Fix Applied**: 
+- Created `scripts/generate_implementation.py` to generate actual working implementations
+- Created proper `scripts/evaluate_all.py` that runs real tests and evaluations
+- Updated workflow to use these scripts instead of copying old code
+
 ### Additional Issues Found
 
 1. **Codecov Rate Limiting**: Upload failing with 429 error
@@ -79,7 +91,7 @@
 
 1. ✅ **UI Tests**: Fixed - Set reuseExistingServer:true
 2. ✅ **Lighthouse**: Relaxed thresholds and added skip audits
-3. ⏳ **Experiment Pipeline**: Need to fix Google Fonts network issue
+3. ✅ **Experiment Pipeline**: Fixed logic to generate real implementations
 4. ⏳ **Codecov**: Need to add repository upload token
 5. ⏳ **Dependencies**: Update deprecated packages
 6. ✅ **Research**: Created research file to trigger workflows

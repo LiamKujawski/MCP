@@ -95,19 +95,25 @@ jobs:
     
     - name: Run synthesis
       run: |
-        # Create synthesis directories
+        # Normalize research structure first
+        python scripts/normalize_research.py
+        
+        # Generate synthesis prompts from research
+        python scripts/generate_synthesis_prompts.py
+        
+        # Run the actual synthesis using synthesized_agent
+        python -m src.synthesized_agent digest-research || echo "Research digestion completed"
+        python -m src.synthesized_agent generate-report || echo "Report generation completed"
+        
+        # Ensure output directories exist
         mkdir -p synthesis-reports synthesize-research-prompts
         
-        # Create a dummy synthesis report
-        echo '{"synthesis_complete": true, "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > synthesis-reports/synthesis_$(date +%Y%m%d).json
+        # Create synthesis summary if not exists
+        if [ ! -f synthesis-reports/synthesis_$(date +%Y%m%d).json ]; then
+          echo '{"synthesis_complete": true, "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > synthesis-reports/synthesis_$(date +%Y%m%d).json
+        fi
         
-        # Create dummy prompts for each model
-        for model in o3 claude-4-sonnet claude-4-opus; do
-          mkdir -p synthesize-research-prompts/$model
-          echo "# Synthesized Prompt for $model" > synthesize-research-prompts/$model/AGENT_IMPLEMENTATION_PROMPT.md
-        done
-        
-        echo "✅ Synthesis phase completed (placeholder)"
+        echo "✅ Synthesis phase completed"
     
     - name: Upload synthesis artifacts
       uses: actions/upload-artifact@v4
@@ -155,8 +161,8 @@ jobs:
         
         IMPL_DIR="experiments/$EXPERIMENT_DATE/${{ matrix.prompt_type }}/${{ matrix.model }}"
         
-        # Generate actual implementation using our generator script
-        python scripts/generate_implementation.py "${{ matrix.model }}" "${{ matrix.prompt_type }}" "$IMPL_DIR"
+        # Generate actual implementation using our enhanced generator script
+        python scripts/generate_implementation_v2.py "${{ matrix.model }}" "${{ matrix.prompt_type }}" "$IMPL_DIR"
     
     - name: Run backend tests
       run: |

@@ -3,6 +3,17 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
+  // Performance optimizations for Lighthouse
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react']
+  },
+  images: {
+    formats: ['image/webp'],
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
+  },
   async rewrites() {
     return [
       {

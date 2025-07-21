@@ -141,19 +141,36 @@ jobs:
         # For now, use existing implementations
         echo "Generating implementation for ${{ matrix.model }} with ${{ matrix.prompt_type }} prompt"
         
-        IMPL_DIR="experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}"
+        EXPERIMENT_DATE=$(date +%Y-%m-%d)
+        echo "EXPERIMENT_DATE=$EXPERIMENT_DATE" >> $GITHUB_ENV
+        
+        IMPL_DIR="experiments/$EXPERIMENT_DATE/${{ matrix.prompt_type }}/${{ matrix.model }}"
         mkdir -p $IMPL_DIR
         
         # Copy appropriate implementation
         if [ "${{ matrix.prompt_type }}" == "baseline" ]; then
-          cp -r experiments/2025-07-19/baseline/${{ matrix.model }}/* $IMPL_DIR/
+          # Check if baseline exists for this model, otherwise use o3 as template
+          if [ -d "experiments/2025-07-19/baseline/${{ matrix.model }}" ]; then
+            cp -r experiments/2025-07-19/baseline/${{ matrix.model }}/* $IMPL_DIR/
+          else
+            echo "Using o3 baseline as template for ${{ matrix.model }}"
+            cp -r experiments/2025-07-19/baseline/o3/* $IMPL_DIR/
+          fi
         else
-          cp -r experiments/2025-07-19/cross/* $IMPL_DIR/
+          # For synthesized, check if cross implementation exists
+          if [ -d "experiments/2025-07-19/cross/${{ matrix.model }}-prompt-opus-model" ]; then
+            cp -r experiments/2025-07-19/cross/${{ matrix.model }}-prompt-opus-model/* $IMPL_DIR/
+          elif [ -d "experiments/2025-07-19/cross/o3-prompt-opus-model" ]; then
+            cp -r experiments/2025-07-19/cross/o3-prompt-opus-model/* $IMPL_DIR/
+          else
+            echo "ERROR: No synthesized implementation found"
+            exit 1
+          fi
         fi
     
     - name: Run backend tests
-      working-directory: experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}
       run: |
+        cd experiments/${{ env.EXPERIMENT_DATE }}/${{ matrix.prompt_type }}/${{ matrix.model }}
         pip install -r requirements.txt
         pytest tests/ -v --cov=src --cov-report=xml
     
@@ -167,15 +184,15 @@ jobs:
     - name: Run security scans
       run: |
         pip install bandit semgrep
-        bandit -r experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}/src -f json -o bandit-report.json
-        semgrep --config=auto experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }} --json > semgrep-report.json
+        bandit -r experiments/${{ env.EXPERIMENT_DATE }}/${{ matrix.prompt_type }}/${{ matrix.model }}/src -f json -o bandit-report.json
+        semgrep --config=auto experiments/${{ env.EXPERIMENT_DATE }}/${{ matrix.prompt_type }}/${{ matrix.model }} --json > semgrep-report.json
     
     - name: Upload experiment results
       uses: actions/upload-artifact@v4
       with:
         name: experiment-${{ matrix.model }}-${{ matrix.prompt_type }}
         path: |
-          experiments/$(date +%Y-%m-%d)/${{ matrix.prompt_type }}/${{ matrix.model }}
+          experiments/${{ env.EXPERIMENT_DATE }}/${{ matrix.prompt_type }}/${{ matrix.model }}
           *-report.json
           coverage.xml
 
@@ -199,16 +216,21 @@ jobs:
         pattern: experiment-*
         path: experiment-results/
     
+    - name: Set experiment date
+      run: |
+        EXPERIMENT_DATE=$(date +%Y-%m-%d)
+        echo "EXPERIMENT_DATE=$EXPERIMENT_DATE" >> $GITHUB_ENV
+    
     - name: Run evaluation
       run: |
-        cd experiments/$(date +%Y-%m-%d)
-        python ../../scripts/evaluate_all.py --date $(date +%Y-%m-%d)
+        cd experiments/${{ env.EXPERIMENT_DATE }}
+        python ../../scripts/evaluate_all.py --date ${{ env.EXPERIMENT_DATE }}
     
     - name: Select winner
       id: winner
       run: |
         # Extract winner from evaluation results
-        WINNER=$(jq -r '.best_implementation.name' experiments/$(date +%Y-%m-%d)/evaluation_results.json)
+        WINNER=$(jq -r '.best_implementation.name' experiments/${{ env.EXPERIMENT_DATE }}/evaluation_results.json)
         echo "winner=$WINNER" >> $GITHUB_OUTPUT
         echo "🏆 Winner: $WINNER"
     
@@ -217,7 +239,7 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const results = JSON.parse(fs.readFileSync('experiments/$(date +%Y-%m-%d)/evaluation_results.json'));
+          const results = JSON.parse(fs.readFileSync(`experiments/${process.env.EXPERIMENT_DATE}/evaluation_results.json`));
           
           const comment = `## 🔬 Experiment Results
           
@@ -263,22 +285,25 @@ jobs:
     
     - name: Build Docker images
       run: |
-        docker build -t ghcr.io/${{ github.repository }}/mcp-backend:experiment-${{ github.sha }} .
-        docker build -t ghcr.io/${{ github.repository }}/mcp-ui:experiment-${{ github.sha }} ./ui
+        REPO_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        docker build -t ghcr.io/${REPO_LOWER}/mcp-backend:experiment-${{ github.sha }} .
+        docker build -t ghcr.io/${REPO_LOWER}/mcp-ui:experiment-${{ github.sha }} ./ui
     
     - name: Push to registry
       run: |
+        REPO_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
         echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker push ghcr.io/${{ github.repository }}/mcp-backend:experiment-${{ github.sha }}
-        docker push ghcr.io/${{ github.repository }}/mcp-ui:experiment-${{ github.sha }}
+        docker push ghcr.io/${REPO_LOWER}/mcp-backend:experiment-${{ github.sha }}
+        docker push ghcr.io/${REPO_LOWER}/mcp-ui:experiment-${{ github.sha }}
     
     - name: Deploy to production
       run: |
         # Update production tags
-        docker tag ghcr.io/${{ github.repository }}/mcp-backend:experiment-${{ github.sha }} ghcr.io/${{ github.repository }}/mcp-backend:latest
-        docker tag ghcr.io/${{ github.repository }}/mcp-ui:experiment-${{ github.sha }} ghcr.io/${{ github.repository }}/mcp-ui:latest
-        docker push ghcr.io/${{ github.repository }}/mcp-backend:latest
-        docker push ghcr.io/${{ github.repository }}/mcp-ui:latest
+        REPO_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        docker tag ghcr.io/${REPO_LOWER}/mcp-backend:experiment-${{ github.sha }} ghcr.io/${REPO_LOWER}/mcp-backend:latest
+        docker tag ghcr.io/${REPO_LOWER}/mcp-ui:experiment-${{ github.sha }} ghcr.io/${REPO_LOWER}/mcp-ui:latest
+        docker push ghcr.io/${REPO_LOWER}/mcp-backend:latest
+        docker push ghcr.io/${REPO_LOWER}/mcp-ui:latest
 
   # Optimize phase - analyze and create new research
   optimize:

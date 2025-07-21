@@ -9,9 +9,9 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
-  custom_dir: docs/overrides
-  logo: assets/logo.png
-  favicon: assets/favicon.png
+  # custom_dir: docs/overrides  # Commented out until overrides directory is created
+  # logo: assets/logo.png       # Commented out until logo is added
+  # favicon: assets/favicon.png # Commented out until favicon is added
   
   palette:
     - media: "(prefers-color-scheme: light)"

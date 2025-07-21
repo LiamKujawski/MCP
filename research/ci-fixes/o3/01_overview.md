@@ -59,6 +59,11 @@ Fixed Lighthouse CI issues by allowing it to continue on error.
 - Added critters to UI dependencies
 - Both pipelines should now be fully functional
 
+## Update: CI/CD Script Outputs Fix (2025-07-21)
+
+- Added outputs to `evaluate` job in multi-agent-experiment workflow for downstream deploy job.
+- Updated `docker` job conditions to run on `pull_request` events ensuring integration tests and deployment aren't skipped.
+
 ## Overview
 
 This research documents the CI pipeline fixes implemented to stabilize the Multi-Agent CI/CD Pipeline and ensure all tests pass successfully.

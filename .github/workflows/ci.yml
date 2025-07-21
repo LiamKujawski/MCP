@@ -258,12 +258,9 @@ jobs:
     
     - name: Install UI dependencies
       working-directory: ./ui
-      run: npm ci
-
-    # Temporary workaround: ensure Critters is available for Next.js optimizeCss
-    - name: Install Critters (CSS optimizer dependency)
-      working-directory: ./ui
-      run: npm install critters@0.0.25 --no-save
+      run: |
+        npm install
+        npm install wait-on --no-save
     
     - name: Build UI
       working-directory: ./ui

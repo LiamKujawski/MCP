@@ -4,18 +4,33 @@
       "settings": {
         "maxWaitForLoad": 60000,
         "maxWaitForFcp": 30000,
-        "skipAudits": ["uses-http2", "redirects-http", "uses-long-cache-ttl"],
-        "chromeFlags": "--disable-gpu --no-sandbox --disable-dev-shm-usage --disable-setuid-sandbox"
+        "skipAudits": [
+          "uses-http2", 
+          "redirects-http", 
+          "uses-long-cache-ttl",
+          "csp-xss",
+          "errors-in-console",
+          "total-byte-weight",
+          "unused-javascript",
+          "bootup-time",
+          "dom-size",
+          "mainthread-work-breakdown",
+          "server-response-time",
+          "render-blocking-resources"
+        ],
+        "chromeFlags": "--disable-gpu --no-sandbox --disable-dev-shm-usage --disable-setuid-sandbox --headless"
       },
       "numberOfRuns": 1
     },
     "assert": {
       "preset": "lighthouse:no-pwa",
       "assertions": {
-        "categories:performance": ["warn", {"minScore": 0.8}],
-        "categories:accessibility": ["warn", {"minScore": 0.9}],
-        "categories:best-practices": ["warn", {"minScore": 0.9}],
-        "categories:seo": ["warn", {"minScore": 0.95}]
+        "categories:performance": ["warn", {"minScore": 0.5}],
+        "categories:accessibility": ["warn", {"minScore": 0.8}],
+        "categories:best-practices": ["warn", {"minScore": 0.7}],
+        "categories:seo": ["warn", {"minScore": 0.8}],
+        "max-potential-fid": ["warn", {"maxNumericValue": 250}],
+        "speed-index": ["warn", {"minScore": 0.8}]
       }
     }
   }

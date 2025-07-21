@@ -313,6 +313,9 @@ jobs:
         NEXT_TELEMETRY_DISABLED: "1"
         NODE_ENV: production
 
+    - name: Wait for server to be ready
+      run: npx wait-on http://127.0.0.1:3000 --timeout 60000
+
     - name: Run Lighthouse CI
       uses: treosh/lighthouse-ci-action@v11
       with:

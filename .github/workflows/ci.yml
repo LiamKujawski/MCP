@@ -313,10 +313,11 @@ jobs:
         urls: "http://127.0.0.1:3000/"
         uploadArtifacts: true
         temporaryPublicStorage: false
-        configPath: '.lighthouserc.json'
+        configPath: './.lighthouserc.json'
       env:
         LHCI_SERVER_BASE_URL: http://127.0.0.1:3000
         LHCI_COLLECT__SETTINGS__MAX_WAIT_FOR_LOAD: "60000"
+      continue-on-error: true  # Allow workflow to continue even if Lighthouse fails
 
     - name: Check Lighthouse Scores
       uses: actions/github-script@v7

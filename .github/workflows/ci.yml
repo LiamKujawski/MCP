@@ -84,7 +84,6 @@ jobs:
     - name: Run Semgrep
       uses: semgrep/semgrep-action@v1
       with:
-        generateSarif: true
         config: >-
           p/security-audit
       env:
@@ -278,50 +277,22 @@ jobs:
         retention-days: 30
 
     # Add Lighthouse Performance Checks
-    - name: Start Next.js server for Lighthouse
-      working-directory: ./ui
+    - name: Build & start Next.js in prod mode
+      working-directory: ui
       run: |
-        npm run start &
-        SERVER_PID=$!
-        echo "Started server with PID: $SERVER_PID"
-        
-        # Wait for server to be ready
-        MAX_ATTEMPTS=30
-        ATTEMPT=1
-        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-          echo "Waiting for server... attempt $ATTEMPT/$MAX_ATTEMPTS"
-          # Try to connect using Node.js since curl might not be available
-          node -e "
-            const http = require('http');
-            http.get('http://localhost:3000', (res) => {
-              console.log('Server responded with status:', res.statusCode);
-              process.exit(res.statusCode === 200 ? 0 : 1);
-            }).on('error', (err) => {
-              console.log('Server not ready yet:', err.code);
-              process.exit(1);
-            });
-          " && break
-          
-          ATTEMPT=$((ATTEMPT + 1))
-          sleep 2
-        done
-        
-        if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
-          echo "Server failed to start after $MAX_ATTEMPTS attempts"
-          kill $SERVER_PID 2>/dev/null || true
-          exit 1
-        fi
-        
-        echo "Server is ready and responding!"
+        npm run build                      # next build
+        npx next start -p 3000 &           # background server
+        npx wait-on http://localhost:3000  # block until 200 OK
+      env:
+        NEXT_TELEMETRY_DISABLED: "1"
+        NODE_ENV: production
 
     - name: Run Lighthouse CI
       uses: treosh/lighthouse-ci-action@v11
       with:
-        urls: |
-          http://localhost:3000
+        urls: "http://localhost:3000/"
         uploadArtifacts: true
-        temporaryPublicStorage: true
-        configPath: ./ui/lighthouserc.json
+        temporaryPublicStorage: false
 
     - name: Check Lighthouse Scores
       uses: actions/github-script@v7

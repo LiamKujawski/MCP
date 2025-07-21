@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'standalone', // Temporarily disabled for build issues
+  output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
   // Performance optimizations for Lighthouse

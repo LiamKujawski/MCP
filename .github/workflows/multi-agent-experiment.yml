@@ -299,12 +299,18 @@ jobs:
           - 🔄 Trigger optimization phase
           `;
           
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
+          // Only create comment if we have an issue number (from PR/issue context)
+          if (context.issue && context.issue.number) {
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } else {
+            console.log("No issue context available, skipping comment creation");
+            console.log("Evaluation Report:\n", comment);
+          }
 
   # Deploy phase - deploy winner
   deploy:

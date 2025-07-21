@@ -45,6 +45,18 @@
 - **Error**: `experiments/2025-07-21: No such file or directory`
 - **Fix Applied**: Added directory existence check with fallback
 
+### Iteration 5 - Final Push
+
+**Run ID**: 16407535115 (Experiment Pipeline)
+**GitHub API Error**:
+- **Error**: `HttpError: Not Found` when creating issue comment
+- **Fix Applied**: Added check for issue context before commenting
+
+**Run ID**: 16407534261 (CI Pipeline)
+**Docker Build Failure**:
+- **Error**: `/app/.next/standalone": not found`
+- **Fix Applied**: Enabled `output: 'standalone'` in next.config.js
+
 ### Additional Issues Found
 
 1. **Codecov Rate Limiting**: Upload failing with 429 error

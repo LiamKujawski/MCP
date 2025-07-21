@@ -271,8 +271,8 @@ jobs:
     - name: Start UI server & wait until healthy
       working-directory: ./ui
       run: |
-        npx next start -p 3000 &
-        npx wait-on http://localhost:3000
+        npm run start -- -p 3000 &
+        npx wait-on http://localhost:3000 --timeout 60000
       env:
         NODE_ENV: production
 
@@ -281,6 +281,7 @@ jobs:
       run: npm run test:e2e
       env:
         CI: true
+        BASE_URL: http://localhost:3000
     
     - name: Upload Playwright Report
       uses: actions/upload-artifact@v4
@@ -290,13 +291,18 @@ jobs:
         path: ui/playwright-report/
         retention-days: 30
 
-    # Add Lighthouse Performance Checks
+    # Add Lighthouse Performance Checks  
+    - name: Kill any existing process on port 3000
+      run: |
+        lsof -ti:3000 | xargs -r kill -9 || true
+        sleep 2
+
     - name: Build & start Next.js in prod mode
       working-directory: ui
       run: |
-        npm run build                      # next build
-        npx next start -p 3000 &           # background server
-        npx wait-on http://localhost:3000  # block until 200 OK
+        npm run build
+        npm run start -- -p 3000 &
+        npx wait-on http://localhost:3000 --timeout 60000
       env:
         NEXT_TELEMETRY_DISABLED: "1"
         NODE_ENV: production
@@ -304,9 +310,10 @@ jobs:
     - name: Run Lighthouse CI
       uses: treosh/lighthouse-ci-action@v11
       with:
-        urls: "http://localhost:3000/"
+        urls: "http://127.0.0.1:3000/"
         uploadArtifacts: true
         temporaryPublicStorage: false
+        configPath: '.lighthouserc.json'
       env:
         LHCI_SERVER_BASE_URL: http://127.0.0.1:3000
         LHCI_COLLECT__SETTINGS__MAX_WAIT_FOR_LOAD: "60000"

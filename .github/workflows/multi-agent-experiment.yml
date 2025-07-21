@@ -223,6 +223,10 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
     - name: Download all experiment results
       uses: actions/download-artifact@v4
       with:

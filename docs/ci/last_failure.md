@@ -87,12 +87,36 @@
 2. **Deprecated Dependencies**: Multiple npm warnings about deprecated packages
 3. **Security Vulnerabilities**: 18 vulnerabilities (17 moderate, 1 critical)
 
+### Iteration 8 - CI/CD Deployment & Experiment Fixes
+
+**CI Pipeline Issues**:
+- Integration tests were skipped due to dependency on non-existent docker job condition
+- Deploy-staging only ran on non-existent develop branch
+- Release job had broken dependencies
+
+**Fixes Applied**:
+- Changed docker job to run on push or workflow_dispatch
+- Changed deploy-staging to run on main branch
+- Added actual deployment information to deploy-staging
+- Fixed release job dependencies
+
+**Experiment Pipeline Issues**:
+- Generated implementations missing networkx dependency
+- UI builds still failing due to missing critters
+- Tests importing from wrong path
+
+**Fixes Applied**:
+- Added networkx to generated requirements.txt
+- Added critters to UI package.json
+- Fixed test imports to use local src directory
+
 ## Action Items
 
 1. ✅ **UI Tests**: Fixed - Set reuseExistingServer:true
 2. ✅ **Lighthouse**: Relaxed thresholds and added skip audits
 3. ✅ **Experiment Pipeline**: Fixed logic to generate real implementations
-4. ⏳ **Codecov**: Need to add repository upload token
-5. ⏳ **Dependencies**: Update deprecated packages
-6. ✅ **Research**: Created research file to trigger workflows
+4. ✅ **CI Deployment**: Fixed job dependencies and conditions
+5. ⏳ **Codecov**: Need to add repository upload token
+6. ⏳ **Dependencies**: Update deprecated packages
+7. ✅ **Research**: Created research file to trigger workflows
 

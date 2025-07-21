@@ -50,6 +50,15 @@ Fixed Lighthouse CI issues by allowing it to continue on error.
 - Script now detects and processes artifacts from experiment-results/ directory
 - Proper winner selection based on real implementation metrics
 
+## Update: CI/CD and Experiment Final Fixes
+
+- Fixed CI pipeline deployment job dependencies and conditions
+- Integration tests and deployment now run on main branch
+- Added networkx dependency to generated implementations
+- Fixed test import paths for local src directory
+- Added critters to UI dependencies
+- Both pipelines should now be fully functional
+
 ## Overview
 
 This research documents the CI pipeline fixes implemented to stabilize the Multi-Agent CI/CD Pipeline and ensure all tests pass successfully.

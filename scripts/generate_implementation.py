@@ -34,6 +34,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import asyncio
 import logging
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -140,6 +141,7 @@ httpx==0.25.2
 pytest==7.4.3
 pytest-asyncio==0.21.1
 pytest-cov==4.1.0
+networkx>=3.2.0
 """
     (impl_dir / "requirements.txt").write_text(requirements)
     
@@ -147,6 +149,10 @@ pytest-cov==4.1.0
     test_content = f'''"""
 Tests for {model} {prompt_type} implementation.
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
 from fastapi.testclient import TestClient

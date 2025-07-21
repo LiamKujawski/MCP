@@ -314,18 +314,22 @@ jobs:
         NODE_ENV: production
 
     - name: Wait for server to be ready
+      working-directory: ui
       run: npx wait-on http://127.0.0.1:3000 --timeout 60000
 
     - name: Run Lighthouse CI
       uses: treosh/lighthouse-ci-action@v11
       with:
-        urls: "http://127.0.0.1:3000/"
+        urls: |
+          http://127.0.0.1:3000/
+          http://localhost:3000/
         uploadArtifacts: true
         temporaryPublicStorage: false
         configPath: './.lighthouserc.json'
       env:
         LHCI_SERVER_BASE_URL: http://127.0.0.1:3000
         LHCI_COLLECT__SETTINGS__MAX_WAIT_FOR_LOAD: "60000"
+        LHCI_COLLECT__SETTINGS__CHROME_FLAGS: "--disable-gpu --no-sandbox --disable-dev-shm-usage --disable-setuid-sandbox --headless --ignore-certificate-errors"
       continue-on-error: true  # Allow workflow to continue even if Lighthouse fails
 
     - name: Check Lighthouse Scores

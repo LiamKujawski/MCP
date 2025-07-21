@@ -13,7 +13,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 
 
 class ExperimentEvaluator:

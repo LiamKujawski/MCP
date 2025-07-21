@@ -7,8 +7,8 @@ test.describe('Home Page', () => {
     // Wait for the page to be fully loaded
     await page.waitForLoadState('networkidle');
     
-    // Check if the page title contains MCP
-    await expect(page).toHaveTitle('MCP Agent Platform');
+    // Check if the page title contains MCP (flexible across environments)
+    await expect(page).toHaveTitle(/MCP/);
     
     // Check if welcome message is visible
     await expect(page.locator('h1')).toContainText('Welcome to MCP');

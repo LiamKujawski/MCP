@@ -9,6 +9,26 @@ services:
       - REDIS_URL=redis://redis:6379
     depends_on:
       - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    command: ["npm", "run", "start", "--", "-p", "3000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - app
     
   redis:
     image: redis:7-alpine

@@ -266,7 +266,16 @@ jobs:
     - name: Install Playwright Browsers
       working-directory: ./ui
       run: npx playwright install --with-deps
-    
+
+    # Start the production build so that Playwright can point at a stable server
+    - name: Start UI server & wait until healthy
+      working-directory: ./ui
+      run: |
+        npx next start -p 3000 &
+        npx wait-on http://localhost:3000
+      env:
+        NODE_ENV: production
+
     - name: Run Playwright tests
       working-directory: ./ui
       run: npm run test:e2e
@@ -298,6 +307,9 @@ jobs:
         urls: "http://localhost:3000/"
         uploadArtifacts: true
         temporaryPublicStorage: false
+      env:
+        LHCI_SERVER_BASE_URL: http://127.0.0.1:3000
+        LHCI_COLLECT__SETTINGS__MAX_WAIT_FOR_LOAD: "60000"
 
     - name: Check Lighthouse Scores
       uses: actions/github-script@v7

@@ -179,6 +179,10 @@ jobs:
       working-directory: ui
       run: |
         npm ci
+        # Ensure Critters dependency for optimizeCss experiment
+        npm install critters@0.0.25 --no-save
+        # Install Jest TS transformer dependencies
+        npm install ts-jest@29.1.1 identity-obj-proxy@3.0.0 --no-save
         npm run build
         npm run test:ci
     

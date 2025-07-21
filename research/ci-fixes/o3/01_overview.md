@@ -13,6 +13,12 @@ Documenting pipeline stabilisation work.
 
 Fixed Lighthouse CI issues by allowing it to continue on error.
 
+## Update: Final Iteration
+
+- Fixed Docker registry name case sensitivity issue
+- Added error handling for missing experiment directories
+- Made security scans more resilient
+
 ## Overview
 
 This research documents the CI pipeline fixes implemented to stabilize the Multi-Agent CI/CD Pipeline and ensure all tests pass successfully.

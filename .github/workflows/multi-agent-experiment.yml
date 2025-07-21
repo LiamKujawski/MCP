@@ -317,7 +317,7 @@ jobs:
     name: Deploy Winner
     runs-on: ubuntu-latest
     needs: [evaluate]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && needs.evaluate.outputs.winner != '' && needs.evaluate.outputs.winner != 'baseline-o3' && needs.evaluate.outputs.winner != 'o3-baseline'
     
     steps:
     - uses: actions/checkout@v4

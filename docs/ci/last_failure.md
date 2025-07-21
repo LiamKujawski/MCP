@@ -57,6 +57,18 @@
 - **Error**: `/app/.next/standalone": not found`
 - **Fix Applied**: Enabled `output: 'standalone'` in next.config.js
 
+### Iteration 6 - Final Fixes
+
+**Run ID**: 16407667736 (Experiment Pipeline)
+**Deploy Error**:
+- **Error**: `Artifact not found for name: experiment-`
+- **Fix Applied**: Skip deploy phase when no valid experiment winner
+
+**Run ID**: 16407667741 (CI Pipeline)
+**Docker Build Failure**:
+- **Error**: `/app/public": not found`
+- **Fix Applied**: Created public directory
+
 ### Additional Issues Found
 
 1. **Codecov Rate Limiting**: Upload failing with 429 error

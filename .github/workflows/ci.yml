@@ -299,9 +299,26 @@ jobs:
       with:
         script: |
           const fs = require('fs');
+          const path = require('path');
+          
+          // Find the lighthouse results file
+          const resultsDir = '.lighthouseci';
+          let lhrFile = null;
+          
+          try {
+            const files = fs.readdirSync(resultsDir);
+            lhrFile = files.find(f => f.startsWith('lhr-') && f.endsWith('.json'));
+            if (!lhrFile) {
+              throw new Error('No lighthouse results file found');
+            }
+          } catch (e) {
+            console.error('Error finding results:', e);
+            core.setFailed('Could not find Lighthouse results file');
+            return;
+          }
           
           // Read the lighthouse results
-          const results = JSON.parse(fs.readFileSync('.lighthouseci/lhr-0.json', 'utf-8'));
+          const results = JSON.parse(fs.readFileSync(path.join(resultsDir, lhrFile), 'utf-8'));
           
           const scores = {
             performance: results.categories.performance.score * 100,

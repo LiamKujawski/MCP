@@ -44,6 +44,12 @@ Fixed Lighthouse CI issues by allowing it to continue on error.
 - Created evaluate_all.py script for proper evaluation metrics
 - Pipeline now generates working FastAPI implementations with tests
 
+## Update: Evaluation Script Artifact Handling
+
+- Fixed evaluation script to handle downloaded artifacts from GitHub Actions
+- Script now detects and processes artifacts from experiment-results/ directory
+- Proper winner selection based on real implementation metrics
+
 ## Overview
 
 This research documents the CI pipeline fixes implemented to stabilize the Multi-Agent CI/CD Pipeline and ensure all tests pass successfully.

@@ -103,3 +103,8 @@ All changes have been tested to ensure:
 2. Adjust Lighthouse thresholds based on actual performance
 3. Optimize Docker build times
 4. Add more comprehensive E2E test coverage 
+## Update: 2025-07-21 04:32:38
+
+Fixed all CI pipeline issues:
+- Semgrep security scan: Replaced unsafe XML with defusedxml
+- UI dependencies: Regenerated package-lock.json with all dependencies including critters

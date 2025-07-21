@@ -282,15 +282,37 @@ jobs:
       working-directory: ./ui
       run: |
         npm run start &
+        SERVER_PID=$!
+        echo "Started server with PID: $SERVER_PID"
+        
         # Wait for server to be ready
-        for i in {1..30}; do
-          if curl -s http://localhost:3000 > /dev/null; then
-            echo "Server is ready!"
-            break
-          fi
-          echo "Waiting for server... attempt $i"
+        MAX_ATTEMPTS=30
+        ATTEMPT=1
+        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+          echo "Waiting for server... attempt $ATTEMPT/$MAX_ATTEMPTS"
+          # Try to connect using Node.js since curl might not be available
+          node -e "
+            const http = require('http');
+            http.get('http://localhost:3000', (res) => {
+              console.log('Server responded with status:', res.statusCode);
+              process.exit(res.statusCode === 200 ? 0 : 1);
+            }).on('error', (err) => {
+              console.log('Server not ready yet:', err.code);
+              process.exit(1);
+            });
+          " && break
+          
+          ATTEMPT=$((ATTEMPT + 1))
           sleep 2
         done
+        
+        if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+          echo "Server failed to start after $MAX_ATTEMPTS attempts"
+          kill $SERVER_PID 2>/dev/null || true
+          exit 1
+        fi
+        
+        echo "Server is ready and responding!"
 
     - name: Run Lighthouse CI
       uses: treosh/lighthouse-ci-action@v11

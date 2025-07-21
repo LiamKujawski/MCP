@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://mcp-docs.example.com/</loc>
+         <lastmod>2025-07-21</lastmod>
+    </url>
+    <url>
+         <loc>https://mcp-docs.example.com/LOOP/</loc>
+         <lastmod>2025-07-21</lastmod>
+    </url>
+    <url>
+         <loc>https://mcp-docs.example.com/ADR/0001-research-loop/</loc>
+         <lastmod>2025-07-21</lastmod>
+    </url>
+    <url>
+         <loc>https://mcp-docs.example.com/architecture/c4-container/</loc>
+         <lastmod>2025-07-21</lastmod>
+    </url>
+    <url>
+         <loc>https://mcp-docs.example.com/architecture/c4-context/</loc>
+         <lastmod>2025-07-21</lastmod>
+    </url>
+</urlset>

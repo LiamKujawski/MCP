@@ -1,0 +1,1089 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="A self-perpetuating Research → Synthesis → Experiment → Deploy → Optimize pipeline" name="description"/>
+<meta content="MCP Team" name="author"/>
+<link href="https://mcp-docs.example.com/" rel="canonical"/>
+<link href="architecture/c4-context/" rel="next"/>
+<link href="assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.15" name="generator"/>
+<title>MCP - Multi-Agent Codebase Platform</title>
+<link href="assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-XXXXXXXXXX"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-XXXXXXXXXX",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+<script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#mcp-multi-agent-codebase-platform">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="MCP - Multi-Agent Codebase Platform" class="md-header__button md-logo" data-md-component="logo" href="." title="MCP - Multi-Agent Codebase Platform">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            MCP - Multi-Agent Codebase Platform
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/mcp/mcp" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    mcp
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href=".">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="getting-started/installation.md">
+          
+  
+  
+  Getting Started
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="research/index.md">
+          
+  
+  
+  Research
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="architecture/c4-context/">
+          
+  
+  
+  Architecture
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="implementation/backend.md">
+          
+  
+  
+  Implementation
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="testing/unit-tests.md">
+          
+  
+  
+  Testing
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="deployment/docker.md">
+          
+  
+  
+  Deployment
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="api/index.md">
+          
+  
+  
+  API Reference
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="MCP - Multi-Agent Codebase Platform" class="md-nav__button md-logo" data-md-component="logo" href="." title="MCP - Multi-Agent Codebase Platform">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    MCP - Multi-Agent Codebase Platform
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/mcp/mcp" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"></path></svg>
+</div>
+<div class="md-source__repository">
+    mcp
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href=".">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#welcome-to-mcp">
+<span class="md-ellipsis">
+      🚀 Welcome to MCP
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quick-start">
+<span class="md-ellipsis">
+      🎯 Quick Start
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#documentation-structure">
+<span class="md-ellipsis">
+      📚 Documentation Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-builder-loop">
+<span class="md-ellipsis">
+      🔄 The Σ-Builder Loop
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#architecture-overview">
+<span class="md-ellipsis">
+      🏗️ Architecture Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-metrics">
+<span class="md-ellipsis">
+      📊 Performance Metrics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#development-workflow">
+<span class="md-ellipsis">
+      🛠️ Development Workflow
+    </span>
+</a>
+<nav aria-label="🛠️ Development Workflow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-new-research">
+<span class="md-ellipsis">
+      Adding New Research
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-experiments">
+<span class="md-ellipsis">
+      Monitoring Experiments
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contributing">
+<span class="md-ellipsis">
+      🤝 Contributing
+    </span>
+</a>
+<nav aria-label="🤝 Contributing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#development-setup">
+<span class="md-ellipsis">
+      Development Setup
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learn-more">
+<span class="md-ellipsis">
+      📖 Learn More
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#showcase">
+<span class="md-ellipsis">
+      🌟 Showcase
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#license">
+<span class="md-ellipsis">
+      📝 License
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="getting-started/installation.md">
+<span class="md-ellipsis">
+    Installation
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="getting-started/quickstart.md">
+<span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="getting-started/architecture.md">
+<span class="md-ellipsis">
+    Architecture Overview
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Research
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            Research
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="research/index.md">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="research/chatgpt-agent/index.md">
+<span class="md-ellipsis">
+    ChatGPT Agent
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="research/codebase-generation-prompt/index.md">
+<span class="md-ellipsis">
+    Codebase Generation
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Architecture
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="architecture/c4-context/">
+<span class="md-ellipsis">
+    C4 Context
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="architecture/c4-container/">
+<span class="md-ellipsis">
+    C4 Container
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+<span class="md-ellipsis">
+    ADRs
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
+<span class="md-nav__icon md-icon"></span>
+            ADRs
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="ADR/0001-research-loop/">
+<span class="md-ellipsis">
+    0001 Research Loop
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    Implementation
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Implementation
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="implementation/backend.md">
+<span class="md-ellipsis">
+    Backend
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="implementation/frontend.md">
+<span class="md-ellipsis">
+    Frontend
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="implementation/agents.md">
+<span class="md-ellipsis">
+    Agents
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    Testing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            Testing
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="testing/unit-tests.md">
+<span class="md-ellipsis">
+    Unit Tests
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="testing/integration-tests.md">
+<span class="md-ellipsis">
+    Integration Tests
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="testing/e2e-tests.md">
+<span class="md-ellipsis">
+    E2E Tests
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+    Deployment
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deployment/docker.md">
+<span class="md-ellipsis">
+    Docker
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deployment/kubernetes.md">
+<span class="md-ellipsis">
+    Kubernetes
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deployment/production.md">
+<span class="md-ellipsis">
+    Production
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    API Reference
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="api/index.md">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="api/endpoints.md">
+<span class="md-ellipsis">
+    Endpoints
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="api/websockets.md">
+<span class="md-ellipsis">
+    WebSockets
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#welcome-to-mcp">
+<span class="md-ellipsis">
+      🚀 Welcome to MCP
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quick-start">
+<span class="md-ellipsis">
+      🎯 Quick Start
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#documentation-structure">
+<span class="md-ellipsis">
+      📚 Documentation Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-builder-loop">
+<span class="md-ellipsis">
+      🔄 The Σ-Builder Loop
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#architecture-overview">
+<span class="md-ellipsis">
+      🏗️ Architecture Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-metrics">
+<span class="md-ellipsis">
+      📊 Performance Metrics
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#development-workflow">
+<span class="md-ellipsis">
+      🛠️ Development Workflow
+    </span>
+</a>
+<nav aria-label="🛠️ Development Workflow" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-new-research">
+<span class="md-ellipsis">
+      Adding New Research
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-experiments">
+<span class="md-ellipsis">
+      Monitoring Experiments
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#contributing">
+<span class="md-ellipsis">
+      🤝 Contributing
+    </span>
+</a>
+<nav aria-label="🤝 Contributing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#development-setup">
+<span class="md-ellipsis">
+      Development Setup
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#learn-more">
+<span class="md-ellipsis">
+      📖 Learn More
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#showcase">
+<span class="md-ellipsis">
+      🌟 Showcase
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#license">
+<span class="md-ellipsis">
+      📝 License
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="mcp-multi-agent-codebase-platform">MCP - Multi-Agent Codebase Platform<a class="headerlink" href="#mcp-multi-agent-codebase-platform" title="Permanent link">¶</a></h1>
+<div align="center">
+
+[![CI/CD Status](https://img.shields.io/github/actions/workflow/status/mcp/mcp/ci.yml?branch=main&amp;label=CI/CD)](https://github.com/mcp/mcp/actions)
+[![Code Coverage](https://img.shields.io/codecov/c/github/mcp/mcp?label=Coverage)](https://codecov.io/gh/mcp/mcp)
+[![Security Scan](https://img.shields.io/badge/Security-Passing-green)](https://github.com/mcp/mcp/security)
+[![Documentation](https://img.shields.io/badge/Docs-MkDocs-blue)](https://mcp-docs.example.com)
+[![License](https://img.shields.io/github/license/mcp/mcp)](LICENSE)
+
+</div>
+<h2 id="welcome-to-mcp">🚀 Welcome to MCP<a class="headerlink" href="#welcome-to-mcp" title="Permanent link">¶</a></h2>
+<p>MCP is a revolutionary self-perpetuating development platform that transforms AI research insights into production-ready code through an automated <strong>Research → Synthesis → Experiment → Deploy → Optimize</strong> pipeline.</p>
+<div class="admonition success">
+<p class="admonition-title">Key Features</p>
+<ul>
+<li>🤖 <strong>Multi-Model AI Integration</strong>: Harnesses O3, Claude-4-Sonnet, and Claude-4-Opus</li>
+<li>🔄 <strong>Fully Automated Pipeline</strong>: From research to production without human intervention</li>
+<li>📊 <strong>Data-Driven Optimization</strong>: Continuous improvement based on metrics</li>
+<li>🛡️ <strong>Security-First</strong>: OWASP compliant with automated security scanning</li>
+<li>🎨 <strong>Modern UI/UX</strong>: Next.js 13+ with real-time updates</li>
+</ul>
+</div>
+<h2 id="quick-start">🎯 Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">¶</a></h2>
+<p>Get up and running with MCP in minutes:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1"># Clone the repository</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mcp/mcp.git
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>mcp
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="c1"># Install dependencies</span>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>make<span class="w"> </span>install
+<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>
+<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="c1"># Run locally</span>
+<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+<a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>
+<a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="c1"># Access the platform</span>
+<a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>open<span class="w"> </span>http://localhost:3000
+</code></pre></div>
+<h2 id="documentation-structure">📚 Documentation Structure<a class="headerlink" href="#documentation-structure" title="Permanent link">¶</a></h2>
+<div class="grid cards" markdown="">
+
+-   :material-book-open-variant:{ .lg .middle } **Getting Started**
+
+    ---
+
+    Learn the basics and get your first experiment running
+
+    [:octicons-arrow-right-24: Installation](getting-started/installation.md)
+
+-   :material-microscope:{ .lg .middle } **Research System**
+
+    ---
+
+    Understand how multi-model research drives the platform
+
+    [:octicons-arrow-right-24: Research Overview](research/index.md)
+
+-   :material-architecture:{ .lg .middle } **Architecture**
+
+    ---
+
+    Explore the system design and technical decisions
+
+    [:octicons-arrow-right-24: C4 Diagrams](architecture/c4-context.md)
+
+-   :material-api:{ .lg .middle } **API Reference**
+
+    ---
+
+    Complete API documentation with examples
+
+    [:octicons-arrow-right-24: API Docs](api/index.md)
+
+</div>
+<h2 id="the-builder-loop">🔄 The Σ-Builder Loop<a class="headerlink" href="#the-builder-loop" title="Permanent link">¶</a></h2>
+<p>The heart of MCP is the self-perpetuating development loop:</p>
+<pre class="mermaid"><code>graph LR
+    A[📚 Research] --&gt; B[🔀 Synthesis]
+    B --&gt; C[🧪 Experiment]
+    C --&gt; D[🚀 Deploy]
+    D --&gt; E[⚡ Optimize]
+    E --&gt; A
+
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#fff3e0
+    style D fill:#e8f5e9
+    style E fill:#fce4ec</code></pre>
+<p>Each phase is fully automated with strict quality gates:</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Quality Requirements</th>
+<th>Outputs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Research</strong></td>
+<td>Valid YAML front-matter</td>
+<td>Structured insights</td>
+</tr>
+<tr>
+<td><strong>Synthesis</strong></td>
+<td>Convergence threshold met</td>
+<td>Implementation prompts</td>
+</tr>
+<tr>
+<td><strong>Experiment</strong></td>
+<td>90%+ coverage, Lighthouse 90+</td>
+<td>Tested implementations</td>
+</tr>
+<tr>
+<td><strong>Deploy</strong></td>
+<td>All health checks pass</td>
+<td>Production system</td>
+</tr>
+<tr>
+<td><strong>Optimize</strong></td>
+<td>Metrics improvement</td>
+<td>New research topics</td>
+</tr>
+</tbody>
+</table>
+<h2 id="architecture-overview">🏗️ Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">¶</a></h2>
+<p>MCP uses a microservices architecture with these key components:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">Backend Stack</label><label for="__tabbed_1_2">Frontend Stack</label><label for="__tabbed_1_3">Infrastructure</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ul>
+<li><strong>FastAPI</strong>: High-performance async API</li>
+<li><strong>PostgreSQL</strong>: Primary data store</li>
+<li><strong>Redis</strong>: Caching and pub/sub</li>
+<li><strong>WebSockets</strong>: Real-time updates</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<ul>
+<li><strong>Next.js 13+</strong>: App Router for modern React</li>
+<li><strong>Tailwind CSS</strong>: Utility-first styling</li>
+<li><strong>Radix UI</strong>: Accessible components</li>
+<li><strong>Socket.io</strong>: Real-time communication</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<ul>
+<li><strong>Docker</strong>: Container platform</li>
+<li><strong>Traefik</strong>: Reverse proxy with SSL</li>
+<li><strong>GitHub Actions</strong>: CI/CD pipeline</li>
+<li><strong>MkDocs</strong>: Documentation site</li>
+</ul>
+</div>
+</div>
+</input></input></input></div>
+<h2 id="performance-metrics">📊 Performance Metrics<a class="headerlink" href="#performance-metrics" title="Permanent link">¶</a></h2>
+<p>Our automated quality gates ensure exceptional performance:</p>
+<div class="grid cards" markdown="">
+
+-   **Code Coverage**
+
+    <div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>████████████████████ 95%
+</code></pre></div>
+
+    All code must maintain ≥90% test coverage
+
+-   **Lighthouse Score**
+
+    <div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>Performance: 94
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>Accessibility: 96
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>Best Practices: 92
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>SEO: 100
+</code></pre></div>
+
+-   **Security Scan**
+
+    <div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>✅ 0 HIGH vulnerabilities
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>✅ 0 CRITICAL issues
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>✅ OWASP Top 10 compliant
+</code></pre></div>
+
+-   **API Performance**
+
+    <div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>p50: 45ms
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>p95: 120ms
+<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>p99: 198ms
+</code></pre></div>
+</div>
+<h2 id="development-workflow">🛠️ Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">¶</a></h2>
+<h3 id="adding-new-research">Adding New Research<a class="headerlink" href="#adding-new-research" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p>Create research files following the standard structure:
+   <div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>research/your-topic/
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>├── o3/
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a>├── claude-4-sonnet/
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a>└── claude-4-opus/
+<a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a>    ├── 01_overview.md
+<a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a>    ├── 02_architecture.md
+<a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a>    ├── 03_prompt_design.md
+<a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a>    ├── 04_codebase_setup.md
+<a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a>    └── 05_enhancements.md
+</code></pre></div></p>
+</li>
+<li>
+<p>Commit and push - the pipeline triggers automatically!</p>
+</li>
+</ol>
+<h3 id="monitoring-experiments">Monitoring Experiments<a class="headerlink" href="#monitoring-experiments" title="Permanent link">¶</a></h3>
+<p>Track your experiments in real-time:</p>
+<ul>
+<li>📊 <strong>Dashboard</strong>: Live status at <code>/dashboard</code></li>
+<li>📝 <strong>Logs</strong>: Detailed logs for each phase</li>
+<li>📈 <strong>Metrics</strong>: Performance comparisons</li>
+<li>🎯 <strong>Results</strong>: Winner selection rationale</li>
+</ul>
+<h2 id="contributing">🤝 Contributing<a class="headerlink" href="#contributing" title="Permanent link">¶</a></h2>
+<p>We welcome contributions! Please see our <a href="contributing.md">Contributing Guide</a> for details.</p>
+<h3 id="development-setup">Development Setup<a class="headerlink" href="#development-setup" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1"># Install development dependencies</span>
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a>make<span class="w"> </span>dev-setup
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a>
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="c1"># Run tests</span>
+<a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a>make<span class="w"> </span><span class="nb">test</span>
+<a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a>
+<a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="c1"># Run linters</span>
+<a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a>make<span class="w"> </span>lint
+<a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a>
+<a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="c1"># Build documentation</span>
+<a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a>make<span class="w"> </span>docs
+</code></pre></div>
+<h2 id="learn-more">📖 Learn More<a class="headerlink" href="#learn-more" title="Permanent link">¶</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Recommended Reading</p>
+<ul>
+<li><a href="LOOP/">The Σ-Builder Loop Explained</a></li>
+<li><a href="ADR/0001-research-loop/">Architecture Decision Records</a></li>
+<li><a href="api/index.md">API Integration Guide</a></li>
+<li><a href="deployment/production.md">Deployment Best Practices</a></li>
+</ul>
+</div>
+<h2 id="showcase">🌟 Showcase<a class="headerlink" href="#showcase" title="Permanent link">¶</a></h2>
+<p>Projects built with MCP:</p>
+<ul>
+<li><strong>AI Code Generator</strong>: Generates production-ready code from requirements</li>
+<li><strong>Documentation Bot</strong>: Automatically maintains up-to-date documentation</li>
+<li><strong>Security Scanner</strong>: Continuous security assessment and remediation</li>
+<li><strong>Performance Optimizer</strong>: ML-driven performance improvements</li>
+</ul>
+<h2 id="license">📝 License<a class="headerlink" href="#license" title="Permanent link">¶</a></h2>
+<p>MCP is open source software licensed under the <a href="https://github.com/mcp/mcp/blob/main/LICENSE">MIT License</a>.</p>
+<hr/>
+<div align="center">
+<p>Built with ❤️ by the MCP Team</p>
+<p>
+<a href="https://github.com/mcp/mcp">GitHub</a> •
+    <a href="https://mcp-docs.example.com">Documentation</a> •
+    <a href="https://mcp-community.slack.com">Community</a>
+</p>
+</div>
+<aside class="md-source-file">
+<span class="md-source-file__fact">
+<span class="md-icon" title="Last update">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+</span>
+    2025-07-20
+  </span>
+</aside>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/mcp/mcp" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 496 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": ".", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "toc.follow"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
+</body>
+</html>

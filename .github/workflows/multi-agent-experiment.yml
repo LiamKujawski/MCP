@@ -205,6 +205,8 @@ jobs:
     name: Evaluate Experiments
     runs-on: ubuntu-latest
     needs: experiment
+    outputs:
+      winner: ${{ steps.winner.outputs.winner }}
     
     steps:
     - uses: actions/checkout@v4

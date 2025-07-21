@@ -9,8 +9,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && \
+# Install ALL dependencies for build
+RUN npm ci && \
     npm cache clean --force
 
 # Copy source code
@@ -21,6 +21,9 @@ ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_WS_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+
+# Install critters explicitly if needed
+RUN npm install critters@0.0.25 --no-save || true
 
 RUN npm run build
 

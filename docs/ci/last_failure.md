@@ -33,6 +33,18 @@
 - **Error**: Bandit trying to scan non-existent directories
 - **Root Cause**: Experiment workflow creates date-based directories but doesn't populate them
 
+### Iteration 4 - Final Fixes
+
+**Run ID**: 16407356256 (CI Pipeline)
+**Docker Build Failure**:
+- **Error**: `Cannot find module 'critters'` during Next.js build
+- **Fix Applied**: Changed Dockerfile to install all dependencies for build
+
+**Run ID**: 16407356235 (Experiment Pipeline)
+**Evaluation Failure**:
+- **Error**: `experiments/2025-07-21: No such file or directory`
+- **Fix Applied**: Added directory existence check with fallback
+
 ### Additional Issues Found
 
 1. **Codecov Rate Limiting**: Upload failing with 429 error

@@ -19,9 +19,13 @@ import xml.etree.ElementTree as ET
 class ExperimentEvaluator:
     """Evaluates experiment implementations."""
     
-    def __init__(self, experiment_date: str):
+    def __init__(self, experiment_date: str, base_dir: Optional[Path] = None):
         self.experiment_date = experiment_date
-        self.base_dir = Path(f"experiments/{experiment_date}")
+        # Allow override of base directory for downloaded artifacts
+        if base_dir:
+            self.base_dir = base_dir
+        else:
+            self.base_dir = Path(f"experiments/{experiment_date}")
         self.results = {}
     
     def run_evaluation(self) -> Dict[str, Any]:
@@ -264,33 +268,89 @@ def main():
     else:
         experiment_date = datetime.now().strftime("%Y-%m-%d")
     
-    evaluator = ExperimentEvaluator(experiment_date)
-    
-    # Check if experiment directory exists
-    if not evaluator.base_dir.exists():
-        print(f"❌ No experiments found for date: {experiment_date}")
-        print(f"   Expected directory: {evaluator.base_dir}")
+    # Check if we're in GitHub Actions with downloaded artifacts
+    artifact_dir = Path("experiment-results")
+    if artifact_dir.exists() and any(artifact_dir.iterdir()):
+        print(f"📦 Found downloaded artifacts in {artifact_dir}")
         
-        # Create dummy results for pipeline continuation
-        dummy_results = {
+        # Process each artifact directory
+        implementations = {}
+        for artifact_path in artifact_dir.iterdir():
+            if not artifact_path.is_dir():
+                continue
+            
+            # Extract model and prompt type from artifact name
+            # Format: experiment-<model>-<prompt_type>
+            parts = artifact_path.name.split("-")
+            if len(parts) >= 3 and parts[0] == "experiment":
+                model = parts[1]
+                prompt_type = "-".join(parts[2:])  # Handle multi-part prompt types
+                
+                # Find the actual implementation directory
+                impl_dirs = list(artifact_path.rglob(f"*/{prompt_type}/{model}"))
+                if impl_dirs:
+                    impl_dir = impl_dirs[0]
+                    impl_name = f"{model}-{prompt_type}"
+                    print(f"\n📊 Evaluating: {impl_name}")
+                    
+                    evaluator = ExperimentEvaluator(experiment_date)
+                    metrics = evaluator.evaluate_implementation(impl_dir, model, prompt_type)
+                    implementations[impl_name] = metrics
+        
+        # Calculate winner and save results
+        if implementations:
+            winner = max(implementations.items(), key=lambda x: x[1]["total_score"])
+            winner_name, winner_metrics = winner
+        else:
+            winner_name = "no-experiments"
+            winner_metrics = {"total_score": 0}
+        
+        results = {
             "evaluation_date": datetime.now().isoformat(),
             "experiment_date": experiment_date,
-            "implementations": {},
+            "implementations": implementations,
             "best_implementation": {
-                "name": "no-experiments",
-                "score": 0
+                "name": winner_name,
+                "score": winner_metrics.get("total_score", 0)
             }
         }
         
-        evaluator.base_dir.mkdir(parents=True, exist_ok=True)
-        evaluator.save_results(dummy_results)
-        return
-    
-    # Run evaluation
-    results = evaluator.run_evaluation()
-    
-    # Save results
-    evaluator.save_results(results)
+        # Save to expected location
+        output_dir = Path(f"experiments/{experiment_date}")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        evaluator = ExperimentEvaluator(experiment_date)
+        evaluator.save_results(results)
+        
+    else:
+        # Standard evaluation from experiments directory
+        evaluator = ExperimentEvaluator(experiment_date)
+        
+        # Check if experiment directory exists
+        if not evaluator.base_dir.exists():
+            print(f"❌ No experiments found for date: {experiment_date}")
+            print(f"   Expected directory: {evaluator.base_dir}")
+            
+            # Create dummy results for pipeline continuation
+            dummy_results = {
+                "evaluation_date": datetime.now().isoformat(),
+                "experiment_date": experiment_date,
+                "implementations": {},
+                "best_implementation": {
+                    "name": "no-experiments",
+                    "score": 0
+                }
+            }
+            
+            evaluator.base_dir.mkdir(parents=True, exist_ok=True)
+            evaluator.save_results(dummy_results)
+            return
+        
+        # Run evaluation
+        results = evaluator.run_evaluation()
+        
+        # Save results
+        evaluator.save_results(results)
     
     print("\n✨ Evaluation complete!")
 

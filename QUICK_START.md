@@ -99,21 +99,39 @@ To stop the application:
 3. If on Mac/Linux, make sure the script is executable: `chmod +x run_mcp.sh`
 
 ### "Backend API failed to start" error:
-This is often due to Python environment restrictions. Try these solutions:
+This is often due to Python environment or import issues. Try these solutions:
 
-#### Solution 1: Manual Dependency Installation
+#### Solution 1: ModuleNotFoundError: No module named 'synthesized_agent'
+This happens when Python can't find the modules. Fix:
 ```bash
-# Install Python packages manually
-python3 -m pip install --user --break-system-packages -r requirements.txt
+# On Windows:
+set PYTHONPATH=%CD%
+python launcher.py
 
-# Then run the launcher
+# On Mac/Linux:
+export PYTHONPATH=$PWD
 python3 launcher.py
 ```
 
-#### Solution 2: Use a Virtual Environment (Recommended)
+#### Solution 2: Manual Backend Start (Windows)
+Use the simple backend starter:
+```bash
+start_backend.bat
+```
+
+#### Solution 3: Manual Dependency Installation
+```bash
+# Install Python packages manually
+python -m pip install -r requirements.txt
+
+# Then run the launcher
+python launcher.py
+```
+
+#### Solution 4: Use a Virtual Environment (Recommended)
 ```bash
 # Create virtual environment
-python3 -m venv venv
+python -m venv venv
 
 # Activate it
 # On Windows:

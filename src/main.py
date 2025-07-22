@@ -11,16 +11,30 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from synthesized_agent import (
-    ΣBuilderOrchestrator,
-    TaskRequest,
-    TaskResponse,
-    ΣBuilderPhase,
-    ResearchDigestionAgent,
-    SynthesisReportAgent,
-    ImplementationPlanAgent,
-    process_sigma_builder_request,
-)
+try:
+    # Try absolute import first (when running from root with PYTHONPATH set)
+    from src.synthesized_agent import (
+        ΣBuilderOrchestrator,
+        TaskRequest,
+        TaskResponse,
+        ΣBuilderPhase,
+        ResearchDigestionAgent,
+        SynthesisReportAgent,
+        ImplementationPlanAgent,
+        process_sigma_builder_request,
+    )
+except ImportError:
+    # Fall back to relative import (when running from src directory)
+    from synthesized_agent import (
+        ΣBuilderOrchestrator,
+        TaskRequest,
+        TaskResponse,
+        ΣBuilderPhase,
+        ResearchDigestionAgent,
+        SynthesisReportAgent,
+        ImplementationPlanAgent,
+        process_sigma_builder_request,
+    )
 
 
 # Lifespan context manager

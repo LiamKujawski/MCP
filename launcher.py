@@ -55,6 +55,13 @@ class MCPLauncher:
                 print(f"✅ {service_name} is ready!")
                 return True
             time.sleep(1)
+            
+            # Check if backend process has died
+            if service_name == "Backend API" and self.backend_process:
+                if self.backend_process.poll() is not None:
+                    print(f"❌ {service_name} process exited with code: {self.backend_process.returncode}")
+                    return False
+                    
         print(f"❌ {service_name} failed to start within {timeout} seconds")
         return False
         
@@ -189,10 +196,18 @@ ANTHROPIC_API_KEY=your-anthropic-key
         """Start the FastAPI backend"""
         print("\n🚀 Starting backend server...")
         
+        # Add the current directory to Python path so imports work
+        env = env.copy()
+        if 'PYTHONPATH' in env:
+            env['PYTHONPATH'] = str(self.workspace_path) + os.pathsep + env['PYTHONPATH']
+        else:
+            env['PYTHONPATH'] = str(self.workspace_path)
+        
         # Start uvicorn with venv Python
         self.backend_process = subprocess.Popen(
             [self.python_exe, "-m", "uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"],
             env=env,
+            cwd=str(self.workspace_path),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True
@@ -203,12 +218,19 @@ ANTHROPIC_API_KEY=your-anthropic-key
             for line in self.backend_process.stdout:
                 if "Application startup complete" in line:
                     print("✅ Backend started successfully!")
-                elif "ERROR" in line or "error" in line:
-                    print(f"⚠️  Backend: {line.strip()}")
+                elif "Started server process" in line:
+                    print("✅ Uvicorn server process started")
+                elif "ERROR" in line or "error" in line.lower():
+                    if "ModuleNotFoundError" not in line:  # Skip module errors shown in stderr
+                        print(f"⚠️  Backend: {line.strip()}")
         
         def monitor_backend_errors():
             for line in self.backend_process.stderr:
-                print(f"❌ Backend Error: {line.strip()}")
+                if "ModuleNotFoundError" in line:
+                    print(f"❌ Import Error: {line.strip()}")
+                    print("💡 Tip: Make sure all Python dependencies are installed")
+                else:
+                    print(f"❌ Backend Error: {line.strip()}")
         
         threading.Thread(target=monitor_backend, daemon=True).start()
         threading.Thread(target=monitor_backend_errors, daemon=True).start()

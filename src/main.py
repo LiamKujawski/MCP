@@ -10,7 +10,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from synthesized_agent import (
+from .synthesized_agent import (
     ΣBuilderOrchestrator,
     TaskRequest,
     TaskResponse,
@@ -39,6 +39,18 @@ app = FastAPI(
     description="O3 Prompt interpreted through Sonnet's synthesis approach",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+# Allow local frontend (Next.js dev server) to communicate with the API during
+# development without CORS issues.
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

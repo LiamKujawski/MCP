@@ -178,6 +178,7 @@ class ResearchDigestionAgent(BaseΣAgent):
         self.research_dirs = [
             "chatgpt-agent-research",
             "codebase-generation-prompt-research",
+            "research/hosting-deployment-service"
         ]
         self.research_files = [
             "01_overview.md",

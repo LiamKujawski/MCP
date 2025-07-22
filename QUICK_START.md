@@ -13,7 +13,8 @@ Before starting, make sure you have:
 ### Windows Users:
 1. **Double-click** `run_mcp.bat`
 2. The application will automatically:
-   - Install all dependencies (first time only)
+   - Create a virtual environment (first time only)
+   - Install all dependencies in the virtual environment
    - Start the backend server
    - Start the frontend server
    - Open your browser to the MCP Control Center
@@ -21,7 +22,8 @@ Before starting, make sure you have:
 ### Mac/Linux Users:
 1. **Double-click** `run_mcp.sh` or run `./run_mcp.sh` in terminal
 2. The application will automatically:
-   - Install all dependencies (first time only)
+   - Create a virtual environment (first time only)
+   - Install all dependencies in the virtual environment
    - Start the backend server
    - Start the frontend server
    - Open your browser to the MCP Control Center
@@ -96,6 +98,36 @@ To stop the application:
 2. Try running `python --version` and `node --version` to verify
 3. If on Mac/Linux, make sure the script is executable: `chmod +x run_mcp.sh`
 
+### "Backend API failed to start" error:
+This is often due to Python environment restrictions. Try these solutions:
+
+#### Solution 1: Manual Dependency Installation
+```bash
+# Install Python packages manually
+python3 -m pip install --user --break-system-packages -r requirements.txt
+
+# Then run the launcher
+python3 launcher.py
+```
+
+#### Solution 2: Use a Virtual Environment (Recommended)
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate it
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the launcher
+python launcher.py
+```
+
 ### Browser doesn't open automatically:
 - Manually open http://localhost:3000
 
@@ -106,6 +138,7 @@ To stop the application:
 ### Dependencies fail to install:
 - Make sure you have an internet connection
 - Try running as administrator (Windows) or with sudo (Mac/Linux)
+- On newer Linux systems, you may need to add `--break-system-packages` flag
 
 ## 📚 Next Steps
 

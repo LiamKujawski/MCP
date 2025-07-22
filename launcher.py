@@ -25,7 +25,20 @@ class MCPLauncher:
         self.ui_path = self.workspace_path / "ui"
         self.backend_url = "http://localhost:8000"
         self.frontend_url = "http://localhost:3000"
+        self.venv_path = self.workspace_path / "venv"
+        self.python_exe = self.get_python_executable()
         
+    def get_python_executable(self):
+        """Get the Python executable from venv or system"""
+        if platform.system() == "Windows":
+            venv_python = self.venv_path / "Scripts" / "python.exe"
+        else:
+            venv_python = self.venv_path / "bin" / "python"
+        
+        if venv_python.exists():
+            return str(venv_python)
+        return sys.executable
+    
     def is_port_open(self, port):
         """Check if a port is available"""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,6 +58,62 @@ class MCPLauncher:
         print(f"❌ {service_name} failed to start within {timeout} seconds")
         return False
         
+    def setup_virtual_environment(self):
+        """Set up Python virtual environment or use user install"""
+        # First, try to create venv
+        if not self.venv_path.exists():
+            print("📦 Setting up Python environment...")
+            try:
+                # Try to create virtual environment
+                result = subprocess.run(
+                    [sys.executable, "-m", "venv", str(self.venv_path)], 
+                    capture_output=True, 
+                    text=True
+                )
+                if result.returncode == 0:
+                    print("✅ Virtual environment created")
+                    # Update python executable
+                    self.python_exe = self.get_python_executable()
+                    
+                    # Install packages in venv
+                    print("📦 Installing Python packages in virtual environment...")
+                    pip_cmd = [self.python_exe, "-m", "pip", "install", "--upgrade", "pip"]
+                    subprocess.run(pip_cmd, check=True)
+                    
+                    req_cmd = [self.python_exe, "-m", "pip", "install", "-r", "requirements.txt"]
+                    result = subprocess.run(req_cmd, capture_output=True, text=True)
+                    if result.returncode != 0:
+                        print(f"❌ Failed to install packages: {result.stderr}")
+                        return False
+                    print("✅ Python packages installed successfully")
+                    return True
+                else:
+                    # Venv creation failed, fall back to user install
+                    print("⚠️  Virtual environment creation failed, using user install instead")
+                    self.python_exe = sys.executable
+            except Exception as e:
+                print(f"⚠️  Virtual environment setup failed: {e}")
+                self.python_exe = sys.executable
+        else:
+            return True
+            
+        # Fall back to user install with --break-system-packages for newer Python
+        print("📦 Installing Python packages with user install...")
+        req_cmd = [self.python_exe, "-m", "pip", "install", "--user", "--break-system-packages", "-r", "requirements.txt"]
+        result = subprocess.run(req_cmd, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            # Try without --break-system-packages for older systems
+            req_cmd = [self.python_exe, "-m", "pip", "install", "--user", "-r", "requirements.txt"]
+            result = subprocess.run(req_cmd, capture_output=True, text=True)
+            
+        if result.returncode != 0:
+            print(f"❌ Failed to install packages: {result.stderr}")
+            return False
+            
+        print("✅ Python packages installed successfully (user install)")
+        return True
+    
     def check_dependencies(self):
         """Check if all required dependencies are installed"""
         print("🔍 Checking dependencies...")
@@ -57,6 +126,10 @@ class MCPLauncher:
             print(f"❌ Python not found: {e}")
             return False
             
+        # Set up virtual environment if needed
+        if not self.setup_virtual_environment():
+            return False
+            
         # Check Node.js
         try:
             node_version = subprocess.check_output(["node", "--version"], stderr=subprocess.STDOUT).decode().strip()
@@ -65,14 +138,15 @@ class MCPLauncher:
             print("❌ Node.js not found. Please install Node.js from https://nodejs.org/")
             return False
             
-        # Check if Python packages are installed
-        try:
-            import fastapi
-            import uvicorn
-            print("✅ Python packages installed")
-        except ImportError:
-            print("📦 Installing Python packages...")
-            subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], check=True)
+        # Verify Python packages in venv
+        result = subprocess.run(
+            [self.python_exe, "-c", "import fastapi, uvicorn"],
+            capture_output=True
+        )
+        if result.returncode != 0:
+            print("📦 Reinstalling Python packages...")
+            req_cmd = [self.python_exe, "-m", "pip", "install", "-r", "requirements.txt"]
+            subprocess.run(req_cmd, check=True)
             
         # Check if Node packages are installed
         if not (self.ui_path / "node_modules").exists():
@@ -115,9 +189,9 @@ ANTHROPIC_API_KEY=your-anthropic-key
         """Start the FastAPI backend"""
         print("\n🚀 Starting backend server...")
         
-        # Start uvicorn
+        # Start uvicorn with venv Python
         self.backend_process = subprocess.Popen(
-            [sys.executable, "-m", "uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"],
+            [self.python_exe, "-m", "uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"],
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -129,8 +203,15 @@ ANTHROPIC_API_KEY=your-anthropic-key
             for line in self.backend_process.stdout:
                 if "Application startup complete" in line:
                     print("✅ Backend started successfully!")
+                elif "ERROR" in line or "error" in line:
+                    print(f"⚠️  Backend: {line.strip()}")
+        
+        def monitor_backend_errors():
+            for line in self.backend_process.stderr:
+                print(f"❌ Backend Error: {line.strip()}")
         
         threading.Thread(target=monitor_backend, daemon=True).start()
+        threading.Thread(target=monitor_backend_errors, daemon=True).start()
         
     def start_frontend(self, env):
         """Start the Next.js frontend"""

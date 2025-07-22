@@ -8,18 +8,33 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from synthesized_agent import (
-    ΣBuilderOrchestrator,
-    TaskRequest,
-    TaskResponse,
-    ΣBuilderPhase,
-    ResearchDigestionAgent,
-    SynthesisReportAgent,
-    ImplementationPlanAgent,
-    process_sigma_builder_request,
-)
+try:
+    # Try absolute import first (when running from root with PYTHONPATH set)
+    from src.synthesized_agent import (
+        ΣBuilderOrchestrator,
+        TaskRequest,
+        TaskResponse,
+        ΣBuilderPhase,
+        ResearchDigestionAgent,
+        SynthesisReportAgent,
+        ImplementationPlanAgent,
+        process_sigma_builder_request,
+    )
+except ImportError:
+    # Fall back to relative import (when running from src directory)
+    from synthesized_agent import (
+        ΣBuilderOrchestrator,
+        TaskRequest,
+        TaskResponse,
+        ΣBuilderPhase,
+        ResearchDigestionAgent,
+        SynthesisReportAgent,
+        ImplementationPlanAgent,
+        process_sigma_builder_request,
+    )
 
 
 # Lifespan context manager
@@ -39,6 +54,15 @@ app = FastAPI(
     description="O3 Prompt interpreted through Sonnet's synthesis approach",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -232,6 +256,112 @@ async def health_check():
         "active_workflows": len(app.state.active_tasks),
         "implementation": "o3-prompt-sonnet-model",
     }
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    """Custom Swagger UI HTML"""
+    from fastapi.openapi.docs import get_swagger_ui_html
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_js_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js",
+        swagger_css_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css",
+    )
+
+
+# Research Topic Management
+class ResearchTopic(BaseModel):
+    name: str = Field(..., description="Name of the research topic")
+    description: str = Field(..., description="Description of the research topic")
+    content: str = Field(..., description="Initial markdown content")
+
+
+@app.post("/research/topics")
+async def create_research_topic(topic: ResearchTopic):
+    """Create a new research topic with initial content."""
+    import os
+    from pathlib import Path
+    
+    # Sanitize topic name for directory
+    safe_name = topic.name.lower().replace(" ", "-").replace("/", "-")
+    topic_dir = Path(f"research/{safe_name}")
+    
+    try:
+        # Create directory if it doesn't exist
+        topic_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create initial markdown file with front matter
+        front_matter = f"""---
+topic: "{topic.name}"
+description: "{topic.description}"
+stage: research
+version: 1
+created: {datetime.now().isoformat()}
+---
+
+# {topic.name}
+
+{topic.description}
+
+"""
+        
+        # Write the initial content
+        initial_file = topic_dir / "01_overview.md"
+        with open(initial_file, "w") as f:
+            f.write(front_matter + topic.content)
+        
+        return {
+            "status": "success",
+            "topic": topic.name,
+            "path": str(topic_dir),
+            "files": ["01_overview.md"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/research/topics")
+async def list_research_topics():
+    """List all research topics."""
+    from pathlib import Path
+    import os
+    
+    research_dir = Path("research")
+    topics = []
+    
+    if research_dir.exists():
+        for topic_dir in research_dir.iterdir():
+            if topic_dir.is_dir() and not topic_dir.name.startswith('.'):
+                # Get files in the topic directory
+                files = [f.name for f in topic_dir.iterdir() if f.suffix == '.md']
+                files.sort()
+                
+                # Try to read description from first file
+                description = ""
+                if files:
+                    try:
+                        with open(topic_dir / files[0], 'r') as f:
+                            content = f.read()
+                            # Extract description from front matter if present
+                            if content.startswith('---'):
+                                front_matter = content.split('---')[1]
+                                for line in front_matter.split('\n'):
+                                    if line.startswith('description:'):
+                                        description = line.split(':', 1)[1].strip().strip('"')
+                                        break
+                    except:
+                        pass
+                
+                topics.append({
+                    "name": topic_dir.name.replace('-', ' ').title(),
+                    "path": str(topic_dir),
+                    "description": description,
+                    "files": files,
+                    "file_count": len(files)
+                })
+    
+    return {"topics": topics, "total": len(topics)}
 
 
 # Error handlers

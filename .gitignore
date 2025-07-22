@@ -3,4 +3,10 @@ ui/node_modules/
 ui/.next/
 ui/playwright-report/ 
 __pycache__/
-ui/test-results/ 
+ui/test-results/
+venv/
+.env
+.first_run_complete
+*.pyc
+.coverage
+htmlcov/ 

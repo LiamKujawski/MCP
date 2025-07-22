@@ -22,9 +22,7 @@ ARG NEXT_PUBLIC_WS_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
 
-# Install critters explicitly if needed
-RUN npm install critters@0.0.20 --no-save || true
-
+# Build the application
 RUN npm run build
 
 # Production stage

@@ -4,4 +4,6 @@ ui/.next/
 ui/playwright-report/ 
 __pycache__/
 ui/test-results/ 
-.venv/ 
+.venv/
+analysis/
+implementation/ 
